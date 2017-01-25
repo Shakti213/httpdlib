@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     src/httpdlib/response_generator.cpp \
     src/httpdlib/memory_response.cpp \
     src/httpdlib/filesystem_response_generator.cpp \
-    src/httpdlib/content_type.cpp
+    src/httpdlib/content_type.cpp \
+    src/httpdlib/pointer_response.cpp
 
 HEADERS += \
     webserver.h \
@@ -29,7 +30,8 @@ HEADERS += \
     include/httpdlib/codes.h \
     include/httpdlib/memory_response.h \
     include/httpdlib/filesystem_response_generator.h \
-    include/httpdlib/content_type.h
+    include/httpdlib/content_type.h \
+    include/httpdlib/pointer_response.h
 
 INCLUDEPATH += include/
 

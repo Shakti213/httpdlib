@@ -54,22 +54,14 @@ memory_response memory_response::default_for_code(int code)
     return retval;
 }
 
-size_t memory_response::write(response::writer_t writer)
+void memory_response::prepare_write()
 {
-    if(m_code == 200 && m_data.size() == 0) {
-        m_code = 204;
-        m_headers.remove("content-length");
-    }
-    else {
-        m_headers.add("content-length", std::to_string(m_data.size()));
-    }
+    maybe_set_code204_or_content_length(m_data.size());
+}
 
-    auto retval = write_status_and_headers(writer);
-    if(m_data.size() > 0) {
-        retval += writer(m_data.data(), m_data.size());
-    }
-
-    return retval;
+size_t memory_response::write_payload(writer_t writer)
+{
+    return write_bytes(m_data.data(), m_data.size(), writer);
 }
 
 

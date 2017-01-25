@@ -49,14 +49,39 @@ std::map<std::string, std::string> parse_query_string(const std::string& data) {
     return retval;
 }
 
-request::ParseState request::parse_state() const
+request::ParseResult request::parse_result() const
 {
     return m_parse_result;
 }
 
-void request::set_parse_state(const ParseState &parse_state)
+request::operator bool() const
 {
-    m_parse_result = parse_state;
+    return m_parse_result == Finished;
+}
+
+const std::vector<std::string>& request::allowed_methods() const
+{
+    return m_allowed_methods;
+}
+
+void request::set_allowed_methods(const std::vector<std::string> &allowed_methods)
+{
+    m_allowed_methods = allowed_methods;
+}
+
+std::size_t request::max_uri_length() const
+{
+    return m_max_uri;
+}
+
+void request::set_max_uri_length(const std::size_t &max_uri)
+{
+    m_max_uri = max_uri;
+}
+
+void request::set_parse_result(const ParseResult &parse_result)
+{
+    m_parse_result = parse_result;
 }
 
 request::request():
@@ -79,6 +104,7 @@ void request::reset()
     m_request_data.clear();
     m_parse_result = NotFinished;
     m_query_string_length = 0;
+    m_fragment = "";
 }
 
 std::string request::method() const
@@ -108,6 +134,21 @@ bool request::has_header(std::string header_name)
 std::string request::header_value(std::string header_name)
 {
     return m_headers.value(std::move(header_name));
+}
+
+request::query_values_t &request::query_values()
+{
+    return m_query_string_values;
+}
+
+const request::query_values_t &request::query_values() const
+{
+    return m_query_string_values;
+}
+
+const std::string &request::fragment() const
+{
+    return m_fragment;
 }
 
 request &request::operator<<(char c)
@@ -204,7 +245,8 @@ request &request::operator<<(char c)
     case CollectingFragment:
         if(c == ' ') {
             m_state = WaitingVersionStart;
-            std::cout << "Fragment received: \"" << m_request_collector << "\"" << std::endl;
+            m_fragment = m_request_collector;
+            m_request_collector = "";
         }
         else {
             m_request_collector += c;

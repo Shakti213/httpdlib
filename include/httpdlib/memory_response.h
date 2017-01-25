@@ -17,8 +17,9 @@ namespace httpdlib
  * data. If no data should be written and code is set to 200 it will
  * respond with 204 (No data) instead.
  *
- * This implementation is nice to use for small static hard-coded
- * pages, such as hard-coded error pages etc.
+ * This implementation is nice to use for rather small data that is
+ * programatically generated, for instance to send a response containing
+ * current program state.
  *
  * For large buffers of data an implementation that does't copy
  * to an internal buffer should be considered instead.
@@ -43,10 +44,11 @@ public:
 
     void clear_data();
 
-    static memory_response default_for_code(int code);
+    static memory_response default_for_code(int code);    
     // response interface
-public:
-    size_t write(writer_t writer) override;
+protected:
+    void prepare_write() override;
+    size_t write_payload(writer_t writer) override;
 };
 
 } // namespace httpdlib

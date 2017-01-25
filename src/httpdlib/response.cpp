@@ -80,17 +80,36 @@ std::string response::code_to_reason(int code)
     return retval;
 }
 
+void response::maybe_set_code204_or_content_length(size_t content_length)
+{
+    if(m_code == 200 && content_length == 0) {
+        m_code = 204;
+        m_headers.remove("content-length");
+    }
+    else {
+        m_headers.add("content-length", std::to_string(content_length));
+    }
+}
+
 void response::set_header(std::string header, std::string value)
 {
     m_headers.add(header, value);
 }
 
-std::size_t response::write_std_string(const std::string &str, response::writer_t writer)
+size_t response::write(response::writer_t writer)
 {
-    return writer(str.data(), str.length());
+    prepare_write();
+    std::size_t retval = write_status_and_headers(writer);
+    retval += write_payload(writer);
+    return retval;
 }
 
-std::size_t response::write_status_line(response::writer_t writer)
+std::size_t response::write_std_string(const std::string &str, response::writer_t writer) const
+{
+    return write_bytes(str.data(), str.length(), writer);
+}
+
+std::size_t response::write_status_line(response::writer_t writer) const
 {
     std::string line = "HTTP/1.1 " + std::to_string(m_code) + " " + code_to_reason(m_code) + "\r\n";
     return write_std_string(std::move(line), std::move(writer));
@@ -103,9 +122,9 @@ std::size_t response::write_headers(response::writer_t writer)
     return write_std_string(std::move(to_write), std::move(writer));
 }
 
-size_t response::write_headers_end(response::writer_t writer)
+size_t response::write_headers_end(response::writer_t writer) const
 {
-    return writer("\r\n", 2);
+    return write_bytes("\r\n", 2, writer);
 }
 
 size_t response::write_status_and_headers(response::writer_t writer)
@@ -117,7 +136,17 @@ size_t response::write_status_and_headers(response::writer_t writer)
     return retval;
 }
 
-std::string response::get_date_time()
+size_t response::write_bytes(const char *bytes, size_t length, response::writer_t writer) const
+{
+    std::size_t bytes_written = 0;
+    while(bytes_written < length) {
+        bytes_written += writer(bytes+bytes_written, length-bytes_written);
+    }
+
+    return bytes_written;
+}
+
+std::string response::get_date_time() const
 {
     static std::string weekdays[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
     static std::string months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
