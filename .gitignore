@@ -29,3 +29,5 @@
 *.app
 
 *.user
+*.orig
+build-*/
