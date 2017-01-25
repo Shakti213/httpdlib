@@ -7,11 +7,6 @@ namespace httpdlib
 
 using namespace string_util;
 
-header_collection::header_collection()
-{
-
-}
-
 bool header_collection::has_header(std::string name)
 {
     auto header = m_headers.find(to_lower(std::move(name)));

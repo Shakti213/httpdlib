@@ -10,6 +10,11 @@ namespace interface
 {
 
 
+response::~response()
+{
+    // Do nothing
+}
+
 int response::code() const
 {
     return m_code;

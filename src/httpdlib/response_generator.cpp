@@ -7,6 +7,9 @@ namespace interface
 {
 
 
+response_generator::~response_generator()
+{
+    // Do nothing
 }
 
 } // namespace interface

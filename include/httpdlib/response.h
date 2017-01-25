@@ -22,6 +22,7 @@ protected:
     int m_code;
 public:
     typedef std::function<int(const char*, std::size_t)> writer_t;
+    virtual ~response();
 
     virtual int code() const;
     virtual void set_code(int code);

@@ -19,8 +19,6 @@ public:
 private:
     storage_t m_headers;
 public:
-    header_collection();
-
     bool has_header(std::string name);
     std::string value(std::string name) const;
     void parse(std::string str);

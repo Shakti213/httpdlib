@@ -14,6 +14,7 @@ namespace interface
 class response_generator
 {
 public:
+    virtual ~response_generator();
     virtual bool is_handler_for_request(const request &request) = 0;
     virtual std::unique_ptr<response> get_response(const request &request) = 0;
 };
