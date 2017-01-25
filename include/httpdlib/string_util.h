@@ -8,6 +8,9 @@
 namespace httpdlib
 {
 
+/**
+ * Contains utility functions used by httpdlib.
+ */
 namespace strutil
 {
 

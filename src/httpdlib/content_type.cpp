@@ -34,6 +34,8 @@ std::string impl_mime_from_type(std::string type) {
 
 #endif
 
+// TODO add implementations for linux etc.
+
 namespace httpdlib
 {
 

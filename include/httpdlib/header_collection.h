@@ -30,7 +30,7 @@ public:
     void clear();
 
     // Extract key and value from iterators without
-    // without knowing anything of the underlying storage
+    // knowing anything of the underlying storage
     static const std::string& key(iterator iter);
     static std::string& value(iterator iter);
 
@@ -40,7 +40,7 @@ public:
     static const std::string& key(const foreach_t& iter);
     static const std::string& value(const foreach_t& iter);
 
-    // Make this iteratable
+    // Make this iteratable like any other container
     iterator begin();
     iterator end();
 
