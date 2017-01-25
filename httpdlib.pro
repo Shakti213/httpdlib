@@ -14,6 +14,7 @@ SOURCES += main.cpp \
     src/httpdlib/http_request.cpp \
     src/httpdlib/http_header_collection.cpp \
     src/httpdlib/http_response.cpp \
+    src/httpdlib/http_response_generator.cpp \
     src/httpdlib/http_memory_response.cpp
 
 HEADERS += \
@@ -22,6 +23,7 @@ HEADERS += \
     include/httpdlib/http_request.h \
     include/httpdlib/http_header_collection.h \
     include/httpdlib/http_response.h \
+    include/httpdlib/http_response_generator.h \
     include/httpdlib/http_codes.h \
     include/httpdlib/http_memory_response.h
 
