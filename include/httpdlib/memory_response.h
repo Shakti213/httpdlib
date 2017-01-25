@@ -1,19 +1,21 @@
-#ifndef HTTP_MEMORY_RESPONSE_H
-#define HTTP_MEMORY_RESPONSE_H
+#ifndef MEMORY_RESPONSE_H
+#define MEMORY_RESPONSE_H
 
-#include "http_response.h"
+#include "response.h"
 
 namespace httpdlib
 {
 
-class http_memory_response: public http_response
+class memory_response: public response
 {
     std::vector<char>   m_data;
 public:
-    http_memory_response(int code = 200);
+    memory_response(int code = 200);
 
     void set_data(const char *str);
+    void set_data(const char *data, std::size_t length);
 
+    void set_data(std::vector<char> &&data);
     template<typename T>
     void set_data(const T &data) {
         m_data.clear();
@@ -23,12 +25,12 @@ public:
 
     void clear_data();
 
-    static http_memory_response default_for_code(int code);
-    // http_response interface
+    static memory_response default_for_code(int code);
+    // response interface
 public:
     size_t write(writer_t writer) override;
 };
 
 } // namespace httpdlib
 
-#endif // HTTP_MEMORY_RESPONSE_H
+#endif // MEMORY_RESPONSE_H

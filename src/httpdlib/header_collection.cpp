@@ -1,4 +1,4 @@
-#include "httpdlib/http_header_collection.h"
+#include "httpdlib/header_collection.h"
 #include "httpdlib/string_util.h"
 #include <numeric>
 
@@ -7,18 +7,18 @@ namespace httpdlib
 
 using namespace strutil;
 
-http_header_collection::http_header_collection()
+header_collection::header_collection()
 {
 
 }
 
-bool http_header_collection::has_header(std::string name)
+bool header_collection::has_header(std::string name)
 {
     auto header = m_headers.find(to_lower(std::move(name)));
     return header != m_headers.end();
 }
 
-std::string http_header_collection::value(std::string name) const
+std::string header_collection::value(std::string name) const
 {
     auto header = m_headers.find(to_lower(std::move(name)));
     if(header != m_headers.end()) {
@@ -28,17 +28,17 @@ std::string http_header_collection::value(std::string name) const
     return "";
 }
 
-void http_header_collection::add(std::string key, std::string value)
+void header_collection::add(std::string key, std::string value)
 {
     m_headers[to_lower(std::move(key))] = value;
 }
 
-void http_header_collection::remove(std::string key)
+void header_collection::remove(std::string key)
 {
     m_headers.erase(to_lower(std::move(key)));
 }
 
-void http_header_collection::parse(std::string str)
+void header_collection::parse(std::string str)
 {
     auto all_rows = split_all(str, '\n');
     for(const auto& row: all_rows) {
@@ -51,72 +51,72 @@ void http_header_collection::parse(std::string str)
     }
 }
 
-void http_header_collection::clear()
+void header_collection::clear()
 {
     m_headers.clear();
 }
 
-const std::string &http_header_collection::key(http_header_collection::iterator iter)
+const std::string &header_collection::key(header_collection::iterator iter)
 {
     return iter->first;
 }
 
-std::string &http_header_collection::value(http_header_collection::iterator iter)
+std::string &header_collection::value(header_collection::iterator iter)
 {
     return iter->second;
 }
 
-const std::string &http_header_collection::key(http_header_collection::const_iterator iter)
+const std::string &header_collection::key(header_collection::const_iterator iter)
 {
     return iter->first;
 }
 
-const std::string &http_header_collection::value(http_header_collection::const_iterator iter)
+const std::string &header_collection::value(header_collection::const_iterator iter)
 {
     return iter->second;
 }
 
-const std::string &http_header_collection::key(const foreach_t &iter)
+const std::string &header_collection::key(const foreach_t &iter)
 {
     return iter.first;
 }
 
-const std::string &http_header_collection::value(const foreach_t &iter)
+const std::string &header_collection::value(const foreach_t &iter)
 {
     return iter.second;
 }
 
-http_header_collection::iterator http_header_collection::begin()
+header_collection::iterator header_collection::begin()
 {
     return m_headers.begin();
 }
 
-http_header_collection::iterator http_header_collection::end()
+header_collection::iterator header_collection::end()
 {
     return m_headers.end();
 }
 
-http_header_collection::const_iterator http_header_collection::begin() const
+header_collection::const_iterator header_collection::begin() const
 {
     return m_headers.begin();
 }
 
-http_header_collection::const_iterator http_header_collection::end() const
+header_collection::const_iterator header_collection::end() const
 {
     return m_headers.end();
 }
 
-http_header_collection::const_iterator http_header_collection::cbegin() const
+header_collection::const_iterator header_collection::cbegin() const
 {
     return m_headers.cbegin();
 }
 
-http_header_collection::const_iterator http_header_collection::cend() const
+header_collection::const_iterator header_collection::cend() const
 {
     return m_headers.cend();
 }
 
-std::string http_header_collection::to_string() const
+std::string header_collection::to_string() const
 {
     if(m_headers.size() == 0) {
         return "\r\n";

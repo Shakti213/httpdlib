@@ -1,4 +1,4 @@
-#include "httpdlib/http_response.h"
+#include "httpdlib/response.h"
 #include <ctime>
 #include <algorithm>
 #include <iterator>
@@ -6,19 +6,19 @@
 namespace httpdlib
 {
 
-int http_response::code() const
+int response::code() const
 {
     return m_code;
 }
 
-void http_response::set_code(int code)
+void response::set_code(int code)
 {
     if(code_to_reason(code).length() > 0) {
         m_code = code;
     }
 }
 
-std::string http_response::code_to_reason(int code)
+std::string response::code_to_reason(int code)
 {
     std::string retval = " ";
     switch(code)
@@ -71,35 +71,35 @@ std::string http_response::code_to_reason(int code)
     return retval;
 }
 
-void http_response::set_header(std::string header, std::string value)
+void response::set_header(std::string header, std::string value)
 {
     m_headers.add(header, value);
 }
 
-std::size_t http_response::write_std_string(const std::string &str, http_response::writer_t writer)
+std::size_t response::write_std_string(const std::string &str, response::writer_t writer)
 {
     return writer(str.data(), str.length());
 }
 
-std::size_t http_response::write_status_line(http_response::writer_t writer)
+std::size_t response::write_status_line(response::writer_t writer)
 {
     std::string line = "HTTP/1.1 " + std::to_string(m_code) + " " + code_to_reason(m_code) + "\r\n";
     return write_std_string(std::move(line), std::move(writer));
 }
 
-std::size_t http_response::write_headers(http_response::writer_t writer)
+std::size_t response::write_headers(response::writer_t writer)
 {
     m_headers.add("Date", get_date_time());
     auto to_write = m_headers.to_string();
     return write_std_string(std::move(to_write), std::move(writer));
 }
 
-size_t http_response::write_headers_end(http_response::writer_t writer)
+size_t response::write_headers_end(response::writer_t writer)
 {
     return writer("\r\n", 2);
 }
 
-size_t http_response::write_status_and_headers(http_response::writer_t writer)
+size_t response::write_status_and_headers(response::writer_t writer)
 {
     auto retval = write_status_line(writer);
     retval += write_headers(writer);
@@ -108,7 +108,7 @@ size_t http_response::write_status_and_headers(http_response::writer_t writer)
     return retval;
 }
 
-std::string http_response::get_date_time()
+std::string response::get_date_time()
 {
     static std::string weekdays[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
     static std::string months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };

@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <string>
 #include "webserver.h"
-#include "httpdlib/http_request.h"
+#include "httpdlib/request.h"
 
 int main(int argc, char *argv[])
 {

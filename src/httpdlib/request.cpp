@@ -1,6 +1,6 @@
 #include <regex>
 #include <tuple>
-#include "httpdlib/http_request.h"
+#include "httpdlib/request.h"
 #include <iostream>
 #include <cctype>
 #include <algorithm>
@@ -49,23 +49,23 @@ std::map<std::string, std::string> parse_query_string(const std::string& data) {
     return retval;
 }
 
-http_request::ParseState http_request::parse_state() const
+request::ParseState request::parse_state() const
 {
     return m_parse_result;
 }
 
-void http_request::setParse_state(const ParseState &parse_state)
+void request::set_parse_state(const ParseState &parse_state)
 {
     m_parse_result = parse_state;
 }
 
-http_request::http_request():
+request::request():
     m_allowed_methods{"GET","POST", "PUT"}
 {
     reset();
 }
 
-void http_request::reset()
+void request::reset()
 {
     m_request_collector = "";
     m_headers.clear();
@@ -81,7 +81,17 @@ void http_request::reset()
     m_query_string_length = 0;
 }
 
-size_t http_request::content_length() const
+std::string request::method() const
+{
+    return m_method;
+}
+
+std::string request::uri() const
+{
+    return m_uri;
+}
+
+size_t request::content_length() const
 {
     auto content_length_header = m_headers.value("content-length");
     if(content_length_header.size() != 0) {
@@ -90,17 +100,17 @@ size_t http_request::content_length() const
     return 0;
 }
 
-bool http_request::has_header(std::string header_name)
+bool request::has_header(std::string header_name)
 {
     return m_headers.has_header(std::move(header_name));
 }
 
-std::string http_request::header_value(std::string header_name)
+std::string request::header_value(std::string header_name)
 {
     return m_headers.value(std::move(header_name));
 }
 
-http_request &http_request::operator<<(char c)
+request &request::operator<<(char c)
 {
     switch(m_state)
     {

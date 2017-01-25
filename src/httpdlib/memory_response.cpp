@@ -1,41 +1,51 @@
-#include "httpdlib/http_memory_response.h"
+#include "httpdlib/memory_response.h"
 
 
 namespace httpdlib
 {
 
 
-http_memory_response::http_memory_response(int code)
+memory_response::memory_response(int code)
 {
     set_code(code);
 }
 
-void http_memory_response::set_data(const char *str)
+void memory_response::set_data(const char *str)
 {
-    auto length = std::strlen(str);
+    std::size_t length = std::strlen(str);
+    set_data(str, length);
+}
+
+void memory_response::set_data(const char *data, size_t length)
+{
     m_data.clear();
     m_data.reserve(length);
-    std::copy(str, str+length, std::back_inserter(m_data));
+    std::copy(data, data+length, std::back_inserter(m_data));
 }
 
-void http_memory_response::clear_data()
+void memory_response::set_data(std::vector<char> &&data)
+{
+    m_data = std::move(data);
+}
+
+void memory_response::clear_data()
 {
     m_data.clear();
 }
 
-http_memory_response http_memory_response::default_for_code(int code)
+memory_response memory_response::default_for_code(int code)
 {
     static std::string default_page_head = "<html><head><title>";
     static std::string default_page_body = "</title></head><body><h1>";
     static std::string default_page_footer = "</h1></body></html>";
-    http_memory_response retval(code);
+    memory_response retval(code);
     if(code != 204 && code != 304) {
         auto code_string = std::to_string(code);
         retval.set_data(default_page_head +
                         code_string +
                         default_page_body +
                         code_string + " - " +
-                        http_response::code_to_reason(code) +
+                        response::code_to_reason(code) +
                         default_page_footer);
 
         retval.set_header("content-type", "text/html;charset=utf-8");
@@ -44,7 +54,7 @@ http_memory_response http_memory_response::default_for_code(int code)
     return retval;
 }
 
-size_t http_memory_response::write(http_response::writer_t writer)
+size_t memory_response::write(response::writer_t writer)
 {
     if(m_code == 200 && m_data.size() == 0) {
         m_code = 204;

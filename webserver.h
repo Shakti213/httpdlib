@@ -4,14 +4,14 @@
 #include <QObject>
 #include <QTcpServer>
 #include <map>
-#include "httpdlib/http_request.h"
+#include "httpdlib/request.h"
 
 class WebServer: public QObject
 {
     Q_OBJECT
 
     QTcpServer *m_tcp_server;
-    std::map<QTcpSocket*, httpdlib::http_request> m_request_data;
+    std::map<QTcpSocket*, httpdlib::request> m_request_data;
 public:
     WebServer(QObject *parent=nullptr);
 

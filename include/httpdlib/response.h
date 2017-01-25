@@ -7,15 +7,15 @@
 #include <algorithm>
 #include <iterator>
 
-#include "httpdlib/http_header_collection.h"
+#include "httpdlib/header_collection.h"
 
 namespace httpdlib
 {
 
-class http_response
+class response
 {
 protected:
-    http_header_collection m_headers;
+    header_collection m_headers;
     int m_code;
 public:
     typedef std::function<int(const char*, std::size_t)> writer_t;

@@ -11,21 +11,25 @@ TEMPLATE = app
 SOURCES += main.cpp \
     webserver.cpp \
     src/httpdlib/string_util.cpp \
-    src/httpdlib/http_request.cpp \
-    src/httpdlib/http_header_collection.cpp \
-    src/httpdlib/http_response.cpp \
-    src/httpdlib/http_response_generator.cpp \
-    src/httpdlib/http_memory_response.cpp
+    src/httpdlib/request.cpp \
+    src/httpdlib/header_collection.cpp \
+    src/httpdlib/response.cpp \
+    src/httpdlib/response_generator.cpp \
+    src/httpdlib/memory_response.cpp \
+    src/httpdlib/filesystem_response_generator.cpp \
+    src/httpdlib/content_type.cpp
 
 HEADERS += \
     webserver.h \
     include/httpdlib/string_util.h \
-    include/httpdlib/http_request.h \
-    include/httpdlib/http_header_collection.h \
-    include/httpdlib/http_response.h \
-    include/httpdlib/http_response_generator.h \
-    include/httpdlib/http_codes.h \
-    include/httpdlib/http_memory_response.h
+    include/httpdlib/request.h \
+    include/httpdlib/header_collection.h \
+    include/httpdlib/response.h \
+    include/httpdlib/response_generator.h \
+    include/httpdlib/codes.h \
+    include/httpdlib/memory_response.h \
+    include/httpdlib/filesystem_response_generator.h \
+    include/httpdlib/content_type.h
 
 INCLUDEPATH += include/
 

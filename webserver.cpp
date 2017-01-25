@@ -1,7 +1,10 @@
 #include "webserver.h"
-#include "httpdlib/http_memory_response.h"
+#include "httpdlib/memory_response.h"
+#include "httpdlib/filesystem_response_generator.h"
 #include <QDebug>
 #include <QTcpSocket>
+
+httpdlib::filesystem_response_generator response_generator(R"|(C:\Users\andreaswass\www-data)|");
 
 WebServer::WebServer(QObject *parent):
     QObject(parent)
@@ -33,12 +36,12 @@ void WebServer::onReadyRead()
     qDebug() << "Received data \"" << allData << "\"";
     request << allData;
 
-    if(request.parse_state() == httpdlib::http_request::Finished) {
-        auto response = httpdlib::http_memory_response::default_for_code(404);
+    if(request.parse_state() == httpdlib::request::Finished) {
+        auto resp = response_generator.get_response(request);
         auto writer = [&socket](const char *data, std::size_t length) {
             return static_cast<std::size_t>(socket->write(data, length));
         };
-        response.write(writer);
+        resp->write(writer);
 
         request.reset();
     }

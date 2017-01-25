@@ -4,12 +4,12 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "http_header_collection.h"
+#include "header_collection.h"
 
 namespace httpdlib
 {
 
-class http_request
+class request
 {
 public:
     enum ParseState {
@@ -50,7 +50,7 @@ private:
     int m_majorVersion;
     int m_minorVersion;
 
-    http_header_collection    m_headers;
+    header_collection    m_headers;
 
 
     std::size_t         m_request_data_to_read;
@@ -62,10 +62,13 @@ private:
 
     std::size_t         m_max_uri = 16000;
 
+    void set_parse_state(const ParseState &parse_state);
 public:
-    http_request();
+    request();
     void reset();
 
+    std::string method() const;
+    std::string uri() const;
     std::size_t content_length() const;
     bool        has_header(std::string header_name);
     std::string header_value(std::string header_name);
@@ -76,7 +79,7 @@ public:
         }
     }
 
-    http_request& operator<<(const char *str) {
+    request& operator<<(const char *str) {
         for(const char *p = str; *p; p++) {
             *this << *p;
         }
@@ -85,7 +88,7 @@ public:
     }
 
     template<typename Container>
-    http_request& operator<<(const Container &c) {
+    request& operator<<(const Container &c) {
         for(auto i: c) {
             *this << i;
         }
@@ -93,9 +96,8 @@ public:
         return *this;
     }
 
-    http_request& operator<<(char c);
+    request& operator<<(char c);
     ParseState parse_state() const;
-    void setParse_state(const ParseState &parse_state);
 };
 
 }

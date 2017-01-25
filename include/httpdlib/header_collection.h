@@ -7,7 +7,7 @@
 namespace httpdlib
 {
 
-class http_header_collection
+class header_collection
 {
     typedef std::map<std::string, std::string> storage_t;
 
@@ -19,7 +19,7 @@ public:
 private:
     storage_t m_headers;
 public:
-    http_header_collection();
+    header_collection();
 
     bool has_header(std::string name);
     std::string value(std::string name) const;
