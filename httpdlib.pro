@@ -2,7 +2,7 @@ QT += core network gui
 
 CONFIG += c++11
 
-TARGET = QHttpServer
+TARGET = httpdlib
 CONFIG += console
 CONFIG -= app_bundle
 
