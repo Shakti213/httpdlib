@@ -22,6 +22,7 @@ HEADERS += \
     include/httpdlib/http_request.h \
     include/httpdlib/http_header_collection.h \
     include/httpdlib/http_response.h \
+    include/httpdlib/http_codes.h \
     include/httpdlib/http_memory_response.h
 
 INCLUDEPATH += include/
