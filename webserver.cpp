@@ -1,5 +1,5 @@
 #include "webserver.h"
-#include "httpdlib/http_response.h"
+#include "httpdlib/http_memory_response.h"
 #include <QDebug>
 #include <QTcpSocket>
 
@@ -34,7 +34,7 @@ void WebServer::onReadyRead()
     request << allData;
 
     if(request.parse_state() == httpdlib::http_request::Finished) {
-        auto response = httpdlib::http_response::default_for_code(200);
+        auto response = httpdlib::http_memory_response::default_for_code(404);
         auto writer = [&socket](const char *data, std::size_t length) {
             return static_cast<std::size_t>(socket->write(data, length));
         };

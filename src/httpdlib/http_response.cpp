@@ -6,10 +6,20 @@
 namespace httpdlib
 {
 
-namespace helper
+int http_response::code() const
 {
+    return m_code;
+}
 
-std::string code_to_reason(int code) {
+void http_response::set_code(int code)
+{
+    if(code_to_reason(code).length() > 0) {
+        m_code = code;
+    }
+}
+
+std::string http_response::code_to_reason(int code)
+{
     std::string retval = " ";
     switch(code)
     {
@@ -61,70 +71,9 @@ std::string code_to_reason(int code) {
     return retval;
 }
 
-} // namespace httpdlib::helper
-
-
-int http_response::code() const
-{
-    return m_code;
-}
-
-void http_response::set_code(int code)
-{
-    if(helper::code_to_reason(code).length() > 0) {
-        m_code = code;
-    }
-}
-
 void http_response::set_header(std::string header, std::string value)
 {
     m_headers.add(header, value);
-}
-
-size_t http_response::write(http_response::writer_t writer)
-{
-    if(m_code == 200 && m_data.size() == 0) {
-        m_code = 204;
-        m_headers.remove("content-length");
-    }
-    else {
-        m_headers.add("content-length", std::to_string(m_data.size()));
-    }
-
-    auto retval = write_status_and_headers(writer);
-    if(m_data.size() > 0) {
-        retval += writer(m_data.data(), m_data.size());
-    }
-
-    return retval;
-}
-
-void http_response::set_data(const char *str)
-{
-    auto length = std::strlen(str);
-    m_data.clear();
-    m_data.reserve(length);
-    std::copy(str, str+length, std::back_inserter(m_data));
-}
-
-void http_response::clear_data()
-{
-    m_data.clear();
-}
-
-http_response http_response::default_for_code(int code)
-{
-    static std::string default_page_head = "<html><head><title>";
-    static std::string default_page_body = "</title></head><body><h1>";
-    static std::string default_page_footer = "</h1></body></html>";
-    http_response retval(code);
-    if(code != 204 && code != 304) {
-        auto code_string = std::to_string(code);
-        retval.set_data(default_page_head + code_string + default_page_body + code_string + " - " + helper::code_to_reason(code) + default_page_footer);
-        retval.set_header("content-type", "text/html;charset=utf-8");
-    }
-
-    return retval;
 }
 
 std::size_t http_response::write_std_string(const std::string &str, http_response::writer_t writer)
@@ -134,7 +83,7 @@ std::size_t http_response::write_std_string(const std::string &str, http_respons
 
 std::size_t http_response::write_status_line(http_response::writer_t writer)
 {
-    std::string line = "HTTP/1.1 " + std::to_string(m_code) + " " + helper::code_to_reason(m_code) + "\r\n";
+    std::string line = "HTTP/1.1 " + std::to_string(m_code) + " " + code_to_reason(m_code) + "\r\n";
     return write_std_string(std::move(line), std::move(writer));
 }
 
@@ -183,11 +132,5 @@ std::string http_response::get_date_time()
     return retval;
 }
 
-http_response::http_response(int code):
-    m_code(404)
-{
-    // Assume code is invalid so set it using the setter instead.
-    set_code(code);
-}
 
 } // namespace httpdlib
