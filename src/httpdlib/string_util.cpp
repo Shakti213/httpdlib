@@ -6,7 +6,7 @@
 namespace httpdlib
 {
 
-namespace strutil
+namespace string_util
 {
 
 char hex_to_ch(char ch) {
@@ -156,6 +156,6 @@ bool ends_with(std::string string, std::string ending)
     return retval;
 }
 
-} // namespace httpdlib::strutil
+} // namespace httpdlib::string_util
 
 } // namespace httpdlib

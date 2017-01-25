@@ -11,7 +11,7 @@ namespace httpdlib
 /**
  * Contains utility functions used by httpdlib.
  */
-namespace strutil
+namespace string_util
 {
 
 
@@ -27,7 +27,7 @@ std::string to_lower(std::string str);
 
 bool ends_with(std::string string, std::string ending);
 
-} // namespace httpdlib::strutil
+} // namespace httpdlib::string_util
 
 } // namespace httpdlib
 

@@ -11,7 +11,7 @@
 namespace httpdlib
 {
 
-using namespace strutil;
+using namespace string_util;
 
 std::pair<std::string, std::string> parse_uri_and_query(const std::string& data) {
     std::pair<std::string, std::string> retval;

@@ -24,7 +24,7 @@ namespace httpdlib
  * to an internal buffer should be considered instead.
  *
  */
-class memory_response: public response
+class memory_response: public interface::response
 {
     std::vector<char>   m_data;
 public:

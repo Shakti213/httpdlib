@@ -6,6 +6,10 @@
 namespace httpdlib
 {
 
+namespace interface
+{
+
+
 int response::code() const
 {
     return m_code;
@@ -131,6 +135,8 @@ std::string response::get_date_time()
             int_to_zero_leading_string(utc_now.tm_sec) + " GMT";
     return retval;
 }
+
+} // namespace interface
 
 
 } // namespace httpdlib

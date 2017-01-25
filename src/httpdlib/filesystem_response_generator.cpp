@@ -54,9 +54,9 @@ bool filesystem_response_generator::is_handler_for_request(const request &reques
     return false;
 }
 
-std::unique_ptr<response> filesystem_response_generator::get_response(const request &req)
+std::unique_ptr<interface::response> filesystem_response_generator::get_response(const request &req)
 {
-    std::unique_ptr<response> retval(nullptr);
+    std::unique_ptr<interface::response> retval(nullptr);
     std::string file = m_directory + req.uri();
     if(req.uri() == "/") {
         file = m_directory + "/index.html";

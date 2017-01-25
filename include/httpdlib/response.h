@@ -12,6 +12,9 @@
 namespace httpdlib
 {
 
+namespace interface
+{
+
 class response
 {
 protected:
@@ -35,6 +38,8 @@ protected:
     std::size_t write_status_and_headers(writer_t writer);
     std::string get_date_time();
 };
+
+}
 
 
 }

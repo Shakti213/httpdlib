@@ -8,6 +8,9 @@
 namespace httpdlib
 {
 
+namespace interface
+{
+
 class response_generator
 {
 public:
@@ -15,6 +18,8 @@ public:
     virtual std::unique_ptr<response> get_response(const request &request) = 0;
 };
 
-}
+} // namespace interface
+
+} // namespace httpdlib
 
 #endif // RESPONSE_GENERATOR_H

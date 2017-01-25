@@ -5,7 +5,7 @@
 namespace httpdlib
 {
 
-using namespace strutil;
+using namespace string_util;
 
 header_collection::header_collection()
 {
