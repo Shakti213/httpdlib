@@ -224,6 +224,10 @@ http_request &http_request::operator<<(char c)
                     m_minorVersion = std::stoi(matches[2]);
 
                     std::cout << "HTTP version = " << m_majorVersion << "." << m_minorVersion << std::endl;
+                    if(m_majorVersion != 1 || m_minorVersion != 1) {
+                        m_state = ResetRequired;
+                        m_parse_result = UnsupportedVersion;
+                    }
                 }
                 else {
                     valid_version = false;

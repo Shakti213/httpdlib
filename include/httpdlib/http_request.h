@@ -17,7 +17,8 @@ public:
         Finished,
         BadRequest = 400,
         NotImplemented = 501,
-        UriTooLong = 414
+        UriTooLong = 414,
+        UnsupportedVersion = 505
     };
 
 private:
