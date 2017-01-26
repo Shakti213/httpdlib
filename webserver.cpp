@@ -36,12 +36,11 @@ void WebServer::onReadyRead()
     qDebug() << "Received data \"" << allData << "\"";
     request << allData;
 
-    if(request.parse_state() == httpdlib::request::Finished) {
-        auto resp = response_generator.get_response(request);
+    if(request) {
         auto writer = [&socket](const char *data, std::size_t length) {
             return static_cast<std::size_t>(socket->write(data, length));
         };
-        resp->write(writer);
+        response_generator.try_write_response(request, writer);
 
         request.reset();
     }
