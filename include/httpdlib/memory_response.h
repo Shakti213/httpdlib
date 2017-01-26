@@ -1,7 +1,7 @@
 #ifndef MEMORY_RESPONSE_H
 #define MEMORY_RESPONSE_H
 
-#include "response.h"
+#include "httpdlib/interface/response.h"
 
 namespace httpdlib
 {

@@ -46,14 +46,6 @@ filesystem_response_generator::filesystem_response_generator(std::string directo
 
 }
 
-bool filesystem_response_generator::is_handler_for_request(const request &request)
-{
-    if(request.method() == "GET")
-        return true;
-
-    return false;
-}
-
 std::unique_ptr<interface::response> filesystem_response_generator::get_response(const request &req)
 {
     std::unique_ptr<interface::response> retval(nullptr);

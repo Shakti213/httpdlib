@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "httpdlib/response_generator.h"
+#include "httpdlib/interface/response_generator.h"
 
 namespace httpdlib
 {
@@ -32,7 +32,6 @@ public:
 
     // response_generator interface
 public:
-    bool is_handler_for_request(const request &request) override;
     std::unique_ptr<interface::response> get_response(const request &req) override;
 };
 

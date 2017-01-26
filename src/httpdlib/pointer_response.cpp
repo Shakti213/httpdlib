@@ -24,7 +24,7 @@ void pointer_response::prepare_write()
 
 size_t pointer_response::write_payload(writer_t writer)
 {
-    return write_bytes(m_pointer, length, writer);
+    return write_bytes(m_pointer, m_length, writer);
 }
 
 

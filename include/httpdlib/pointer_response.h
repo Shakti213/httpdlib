@@ -1,7 +1,7 @@
 #ifndef POINTER_RESPONSE_H
 #define POINTER_RESPONSE_H
 
-#include "response.h"
+#include "httpdlib/interface/response.h"
 
 namespace httpdlib
 {

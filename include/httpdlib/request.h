@@ -6,7 +6,8 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "header_collection.h"
+
+#include "httpdlib/header_collection.h"
 
 namespace httpdlib
 {
