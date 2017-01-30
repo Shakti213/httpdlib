@@ -4,11 +4,9 @@
 #include <map>
 #include <string>
 
-namespace httpdlib
-{
+namespace httpdlib {
 
-class header_collection
-{
+class header_collection {
     typedef std::map<std::string, std::string> storage_t;
 
 public:
@@ -18,6 +16,7 @@ public:
 
 private:
     storage_t m_headers;
+
 public:
     bool has_header(std::string name);
     std::string value(std::string name) const;

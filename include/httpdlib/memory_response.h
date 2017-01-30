@@ -25,9 +25,10 @@ namespace httpdlib
  * to an internal buffer should be considered instead.
  *
  */
-class memory_response: public interface::response
+class memory_response : public interface::response
 {
-    std::vector<char>   m_data;
+    std::vector<char> m_data;
+
 public:
     memory_response(int code = 200);
 
@@ -35,7 +36,7 @@ public:
     void set_data(const char *data, std::size_t length);
 
     void set_data(std::vector<char> &&data);
-    template<typename T>
+    template <typename T>
     void set_data(const T &data) {
         m_data.clear();
         m_data.reserve(std::size(data));
@@ -44,11 +45,11 @@ public:
 
     void clear_data();
 
-    static memory_response default_for_code(int code);    
+    static memory_response default_for_code(int code);
     // response interface
 protected:
     void prepare_write() override;
-    size_t write_payload(writer_t writer) override;
+    size_t write_payload(writer_t writer, AbortPolicy abort_policy) override;
 };
 
 } // namespace httpdlib

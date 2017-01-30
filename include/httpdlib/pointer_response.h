@@ -13,10 +13,11 @@ namespace httpdlib
  * stores a pointer to the raw data and a length.
  * When sending
  */
-class pointer_response: public interface::response
+class pointer_response : public interface::response
 {
     const char *m_pointer;
     std::size_t m_length;
+
 public:
     pointer_response(int code, const char *pointer, std::size_t length);
 
@@ -25,7 +26,7 @@ public:
     // response interface
 protected:
     void prepare_write() override;
-    size_t write_payload(writer_t writer) override;
+    size_t write_payload(writer_t writer, AbortPolicy abort_policy) override;
 };
 
 } // namespace httpdlib

@@ -9,7 +9,7 @@ namespace httpdlib
 {
 
 /**
- * @brief Example implementation of a response_generator
+ * @brief Filesystem mplementation of a response_generator
  *
  * This implementation is very basic, the constructor takes a
  * directory path and all files in this directory will be served.

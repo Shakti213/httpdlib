@@ -1,11 +1,11 @@
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 
-#include <string>
-#include <map>
-#include <vector>
 #include <algorithm>
 #include <iterator>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "httpdlib/header_collection.h"
 
@@ -19,17 +19,16 @@ public:
         NotFinished,
         Finished,
         BadRequest = 400,
+        MethodNotAllowed = 405,
         NotImplemented = 501,
         UriTooLong = 414,
         UnsupportedVersion = 505
     };
 
-    typedef std::map<std::string, std::string>  query_values_t;
+    typedef std::map<std::string, std::string> query_values_t;
 
 private:
-
-    enum State
-    {
+    enum State {
         WaitingMethodStart,
         CollectingMethod,
         WaitingUriStart,
@@ -43,7 +42,6 @@ private:
         ResetRequired
     };
 
-
     State m_state;
 
     std::string m_request_collector;
@@ -52,27 +50,59 @@ private:
     std::string m_uri;
     std::string m_fragment;
 
-    query_values_t  m_query_string_values;
-    std::size_t     m_query_string_length;
+    query_values_t m_query_string_values;
+    std::size_t m_query_string_length;
 
     int m_majorVersion;
     int m_minorVersion;
 
-    header_collection    m_headers;
+    header_collection m_headers;
 
+    std::size_t m_request_data_to_read;
+    std::vector<char> m_request_data;
 
-    std::size_t         m_request_data_to_read;
-    std::vector<char>   m_request_data;
+    ParseResult m_parse_result;
 
-    ParseResult  m_parse_result;
+    std::vector<std::string> m_allowed_methods;
 
-    std::vector<std::string>    m_allowed_methods;
-
-    std::size_t         m_max_uri = 16000;
+    std::size_t m_max_uri = 16000;
 
     void set_parse_result(const ParseResult &parse_result);
+
+    bool check_accepts(std::string value, std::string header_value,
+                       std::string always_accepts);
+
 public:
     request();
+
+    /**
+     * @brief Checks if the request will accept the specified media type
+     * @param Media type to check if the request will accept.
+     * @return  True if accepted, otherwise false.
+     */
+    bool accepts_media_type(std::string media_type);
+
+    /**
+     * @brief Checks if the request will accept a specified charset.
+     * @param charset The charset to check.
+     * @return True if the charset is accepted, otherwise false.
+     */
+    bool accepts_charset(std::string charset);
+
+    /**
+     * @brief Checks if the request will accept a specified language
+     * @param language The language to check. Can be a fully specified language
+     * (eg. "en-gb") or without tag (eg. "en").
+     * @return True if accepted, otherwise false.
+     */
+    bool accepts_language(std::string language);
+
+    /**
+     * @brief Checks if the request will accepted the specified encoding.
+     * @param encoding The encoding to check.
+     * @return True if accepted, otherwise false.
+     */
+    bool accepts_encoding(std::string encoding);
     /**
      * @brief Resets the request objects state
      *
@@ -94,7 +124,8 @@ public:
      */
     std::string uri() const;
     /**
-     * @brief The content-length. Currently only determined by the Content-Length header.
+     * @brief The content-length. Currently only determined by the
+     * Content-Length header.
      * @return
      */
     std::size_t content_length() const;
@@ -103,7 +134,7 @@ public:
      * @param The header name to look for.
      * @return True if the header is available.
      */
-    bool        has_header(std::string header_name);
+    bool has_header(std::string header_name);
     /**
      * @brief Retrieves the header value
      * @param Name of the header to get the value of
@@ -116,10 +147,10 @@ public:
      *
      * @return Key-value store where values are stored as strings.
      */
-    query_values_t& query_values();
-    const query_values_t& query_values() const;
+    query_values_t &query_values();
+    const query_values_t &query_values() const;
 
-    const std::string& fragment() const;
+    const std::string &fragment() const;
 
     /**
      * @brief Add a buffer of data with explicit length.
@@ -127,7 +158,7 @@ public:
      * @param length Length of the data to be added.
      */
     void add_data(const char *data, std::size_t length) {
-        for(std::size_t i=0; i<length; i++) {
+        for (std::size_t i = 0; i < length; i++) {
             *this << data[i];
         }
     }
@@ -137,8 +168,8 @@ public:
      * @param str The null-terminated string to add.
      * @return *this.
      */
-    request& operator<<(const char *str) {
-        for(const char *p = str; *p; p++) {
+    request &operator<<(const char *str) {
+        for (const char *p = str; *p; p++) {
             *this << *p;
         }
 
@@ -151,9 +182,9 @@ public:
      * @return *this
      * The container must be iterable using for(auto i: c).
      */
-    template<typename Container>
-    request& operator<<(const Container &c) {
-        for(auto i: c) {
+    template <typename Container>
+    request &operator<<(const Container &c) {
+        for (auto i : c) {
             *this << i;
         }
 
@@ -165,10 +196,17 @@ public:
      * @param c The character to add and parse.
      * @return *this.
      */
-    request& operator<<(char c);
+    request &operator<<(char c);
+
+    /**
+     * @brief Checks if an error has occurred.
+     * @return True if an error has occurred, otherwise false.
+     */
+    bool error() const;
     /**
      * @brief Gets the parse result.
-     * @return NotFinished if more data is needed, Finished if a request is completed, any other value means a parse error occurred.
+     * @return NotFinished if more data is needed, Finished if a request is
+     * completed, any other value means a parse error occurred.
      */
     ParseResult parse_result() const;
 
@@ -176,6 +214,8 @@ public:
      * @brief Can be used to check if a request has been fully parsed.
      */
     explicit operator bool() const;
+
+    std::string allowed_methods_string() const;
 
     /**
      * @brief Gets the allowed methods.
@@ -200,7 +240,6 @@ public:
      */
     void set_max_uri_length(const std::size_t &max_uri);
 };
-
 }
 
 #endif // HTTPREQUEST_H

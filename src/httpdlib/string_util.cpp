@@ -9,6 +9,15 @@ namespace httpdlib
 namespace string_util
 {
 
+namespace priv
+{
+
+bool safe_isspace(int c) {
+    return std::isspace(c & 0x00ff);
+}
+
+}
+
 char hex_to_ch(char ch) {
     if(ch >= 'A' && ch <= 'F'){
         return ch-'A' + 10;
@@ -64,7 +73,7 @@ std::string url_encode(const std::string &data) {
 }
 
 std::string trim_start(const std::string &data) {
-    auto start = std::find_if_not(data.begin(), data.end(), std::isspace);
+    auto start = std::find_if_not(data.begin(), data.end(), priv::safe_isspace);
     if(start == data.end()) {
         // Pure whitespace string, so return an empty string instead
         return "";
@@ -78,7 +87,7 @@ std::string trim_end(const std::string &data)  {
         return "";
     }
     auto back = data.end()-1;
-    while(std::isspace(*back) && back != data.begin()) {
+    while(priv::safe_isspace(*back) && back != data.begin()) {
         back--;
     }
     // Make it 1 past the end
@@ -114,7 +123,7 @@ std::vector<std::string> split_all(std::string str, char delimiter) {
     return retval;
 }
 
-std::pair<std::string, std::string> split_string(std::string str, char delimiter) {
+std::pair<std::string, std::string> split_once(std::string str, char delimiter) {
 
     std::pair<std::string, std::string> retval;
 
