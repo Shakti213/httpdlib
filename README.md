@@ -45,18 +45,20 @@ Once a request has been made a response is expected. httpdlib has a very flexibl
 
 The base class for all responses is the `httpdlib::interface::response`. As can be inferred from the fact that it is in the interface namespace it is a base class with at least one pure virtual function. Thus it can not be instantiated directly but it does provides a couple of helper functions for any derived classes.
 
-Any derived class must implement at least these two methods:
+Any derived class must implement at least these three methods:
 ``` c++
 virtual void response::prepare_write() = 0;
-virtual std::size_t response::write_payload(writer_t writer) = 0;
+virtual std::size_t response::write_payload_part(writer_t writer, std::size_t offset) = 0;
+virtual bool payload_done(std::size_t payload_bytes_written) const = 0;
 ```
-`prepare_write()` is called by the default `response::write(writer_t)` function before any writes are made. Thus any changes to the response code, or setting of any headers based on content etc. can be made here.
-`write_payload(writer_t writer)` performs the actual writing of the payload and is the last write function called by the default `response::write(writer_t)`.
+`prepare_write()` is called by the default `response::write_next(writer_t)` function before any writes are made. Thus any changes to the response code, or setting of any headers based on content etc. can be made here.
+`write_payload_part(writer_t writer, std::size_t offset)` It can be called multiple times by the default write_next implementation. The offset is the number of payload bytes that has been written up until now.
+`payload_done(std::size_t payload_bytes_written) const` is used to determine if the complete payload has been written or not.
 
 `writer_t` is a typedef inside the `request` class that looks like this: `typedef std::function<std::size_t(const char*, std::size_t)> writer_t`. So writer_t is a callable object with the signature `std::size_t callable(const char*, std::size_t);`. The first argument of this callable is a pointer to the data that should be written. The second argument is the length of the data to be written. The return value is the number of bytes actually written.
 
 This makes the response output flexible and we can even output to several sources at once (for instance to both the client that requested the resource as well as to a logger).
 
-For examples of how the response class can be derived from see `memory_response.cpp` and `pointer_response.cpp` in `src/httpdlib`
+For examples of how the response class can be derived from see `memory_response.cpp`, `pointer_response.cpp` and stream_response.cpp in `src/httpdlib`
 
 
