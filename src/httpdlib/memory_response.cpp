@@ -47,8 +47,12 @@ void memory_response::prepare_write() {
     maybe_set_code204_or_content_length(m_data.size());
 }
 
-size_t memory_response::write_payload(writer_t writer,
-                                      AbortPolicy abort_policy) {
-    return write_bytes(m_data.data(), m_data.size(), writer, abort_policy);
+size_t memory_response::write_payload_part(interface::response::writer_t writer,
+                                           size_t offset) {
+    return write_bytes(m_data.data() + offset, m_data.size() - offset, writer);
+}
+
+bool memory_response::payload_done(std::size_t payload_bytes_written) const {
+    return payload_bytes_written >= m_data.size();
 }
 }

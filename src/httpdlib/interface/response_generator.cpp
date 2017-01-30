@@ -14,23 +14,14 @@ response_generator::~response_generator() {
 
 size_t response_generator::try_write_response(const request &request,
                                               response::writer_t writer) {
-    if (is_handler_for_request(request)) {
+    /*if (is_handler_for_request(request)) {
         auto response = get_response(request);
         if (response) {
             return response->write(writer);
         }
-    }
+    }*/
 
     return 0;
-}
-
-void response_generator::add_filter(response_generator_filter *filter) {
-    add_filter(std::unique_ptr<response_generator_filter>(filter));
-}
-
-void response_generator::add_filter(
-    std::unique_ptr<response_generator_filter> filter) {
-    m_filters.push_back(std::move(filter));
 }
 
 void response_generator::clear_filters() {
@@ -38,10 +29,10 @@ void response_generator::clear_filters() {
 }
 
 bool response_generator::check_filters(const request &request) {
-    return std::all_of(std::begin(m_filters), std::end(m_filters),
-                       [&request](const auto &filter_ptr) {
-                           return filter_ptr->passes_filter(request);
-                       });
+    // If any of the filters return false std::any_of will return true,
+    return !std::any_of(
+        std::begin(m_filters), std::end(m_filters),
+        [&request](const auto &f) { return f(request) == false; });
 }
 
 bool response_generator::priv_is_handler_for_request(const request &) {
@@ -51,6 +42,11 @@ bool response_generator::priv_is_handler_for_request(const request &) {
 bool httpdlib::interface::response_generator::is_handler_for_request(
     const request &request) {
     return check_filters(request) && priv_is_handler_for_request(request);
+}
+
+void response_generator::add_filter(
+    std::function<bool(const request &)> filter) {
+    m_filters.push_back(filter);
 }
 
 } // namespace interface

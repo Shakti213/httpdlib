@@ -49,7 +49,13 @@ public:
     // response interface
 protected:
     void prepare_write() override;
-    size_t write_payload(writer_t writer, AbortPolicy abort_policy) override;
+    // response interface
+protected:
+    size_t write_payload_part(writer_t writer, size_t offset) override;
+
+    // response interface
+protected:
+    bool payload_done(size_t payload_bytes_written) const override;
 };
 
 } // namespace httpdlib

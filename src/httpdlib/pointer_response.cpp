@@ -18,9 +18,10 @@ void pointer_response::prepare_write() {
     maybe_set_code204_or_content_length(m_length);
 }
 
-size_t pointer_response::write_payload(writer_t writer,
-                                       AbortPolicy abort_policy) {
-    return write_bytes(m_pointer, m_length, writer, abort_policy);
+size_t
+pointer_response::write_payload_part(interface::response::writer_t writer,
+                                     size_t offset) {
+    return write_bytes(m_pointer + offset, m_length - offset, writer);
 }
 
 } // namespace httpdlib

@@ -172,64 +172,46 @@ void response::set_header(std::string header, std::string value) {
     m_headers.add(header, value);
 }
 
-size_t response::write(response::writer_t writer, AbortPolicy abort_policy) {
-    prepare_write();
-    std::size_t retval = write_status_and_headers(writer, abort_policy);
-    retval += write_payload(writer, abort_policy);
-    return retval;
+size_t response::write_next(response::writer_t writer) {
+    if (m_state == state_write_headers) {
+        if (m_serialized_status_and_headers.size() == 0) {
+            prepare_write();
+            m_serialized_status_and_headers = "HTTP/1.1 " +
+                                              std::to_string(m_code) + " " +
+                                              code_to_reason(m_code) + "\r\n";
+            m_headers.add("Date", get_date_time());
+            m_serialized_status_and_headers += m_headers.to_string();
+            m_serialized_status_and_headers += "\r\n";
+            m_write_next_offset = 0;
+        }
+
+        auto bytes_written = write_bytes(
+            m_serialized_status_and_headers.data() + m_write_next_offset,
+            m_serialized_status_and_headers.length() - m_write_next_offset,
+            writer);
+
+        m_write_next_offset += bytes_written;
+
+        if (m_write_next_offset >= m_serialized_status_and_headers.length()) {
+            m_state = state_write_payload;
+            m_write_next_offset = 0;
+        }
+
+        return bytes_written;
+    }
+
+    auto bytes_written = write_payload_part(writer, m_write_next_offset);
+    m_write_next_offset += bytes_written;
+    return bytes_written;
 }
 
-std::size_t response::write_std_string(const std::string &str,
-                                       response::writer_t writer,
-                                       AbortPolicy abort_policy) const {
-    return write_bytes(str.data(), str.length(), writer, abort_policy);
-}
-
-std::size_t response::write_status_line(response::writer_t writer,
-                                        AbortPolicy abort_policy) const {
-    std::string line = "HTTP/1.1 " + std::to_string(m_code) + " " +
-                       code_to_reason(m_code) + "\r\n";
-    return write_std_string(std::move(line), std::move(writer), abort_policy);
-}
-
-std::size_t response::write_headers(response::writer_t writer,
-                                    AbortPolicy abort_policy) {
-    m_headers.add("Date", get_date_time());
-    auto to_write = m_headers.to_string();
-    return write_std_string(std::move(to_write), std::move(writer),
-                            abort_policy);
-}
-
-size_t response::write_headers_end(response::writer_t writer,
-                                   AbortPolicy abort_policy) const {
-    return write_bytes("\r\n", 2, writer, abort_policy);
-}
-
-size_t response::write_status_and_headers(response::writer_t writer,
-                                          AbortPolicy abort_policy) {
-    auto retval = write_status_line(writer, abort_policy);
-    retval += write_headers(writer, abort_policy);
-    retval += write_headers_end(writer, abort_policy);
-
-    return retval;
+bool response::done() const {
+    return m_state == state_write_payload && payload_done(m_write_next_offset);
 }
 
 size_t response::write_bytes(const char *bytes, size_t length,
-                             response::writer_t writer,
-                             AbortPolicy abort_policy) const {
-    std::size_t bytes_written = 0;
-    while (bytes_written < length) {
-        std::size_t temp_bytes_written =
-            writer(bytes + bytes_written, length - bytes_written);
-        if (temp_bytes_written == 0 &&
-            abort_policy == AbortOnZeroBytesWritten) {
-            throw std::runtime_error(
-                "httpdlib - writer returned 0 bytes written");
-        }
-        bytes_written += writer(bytes + bytes_written, length - bytes_written);
-    }
-
-    return bytes_written;
+                             response::writer_t writer) const {
+    return writer(bytes, length);
 }
 
 std::string response::get_date_time() const {

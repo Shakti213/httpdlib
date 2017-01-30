@@ -5,20 +5,13 @@
 #include <QDebug>
 #include <QTcpSocket>
 
-class method_filter : public httpdlib::interface::response_generator_filter
-{
-    // response_generator_filter interface
-public:
-    bool passes_filter(const httpdlib::request &request) const override {
-        return request.method() == "GET";
-    }
-};
-
-httpdlib::filesystem_response_generator
+static httpdlib::filesystem_response_generator
     response_generator(R"|(C:\Users\andreaswass\www-data)|");
 
 WebServer::WebServer(QObject *parent) : QObject(parent) {
-    response_generator.add_filter(new method_filter);
+    // Filter so only GET requests will go through
+    response_generator.add_filter(
+        [](const auto &r) { return r.method() == "GET"; });
     m_tcp_server = new QTcpServer(this);
 
     connect(m_tcp_server, &QTcpServer::newConnection, this,
@@ -37,6 +30,8 @@ void WebServer::onNewConnection() {
     connect(socket, &QTcpSocket::disconnected, this,
             &WebServer::onDisconnected);
     connect(socket, &QTcpSocket::readyRead, this, &WebServer::onReadyRead);
+    connect(socket, &QTcpSocket::bytesWritten, this,
+            &WebServer::onBytesWritten);
 }
 
 void WebServer::onReadyRead() {
@@ -48,26 +43,63 @@ void WebServer::onReadyRead() {
 
     if (request) {
         auto writer = [&socket](const char *data, std::size_t length) {
+            qDebug() << "Writing " << length << " bytes";
             qint64 retval = socket->write(data, length);
+            // socket->flush();
             if (retval <= 0) {
+                if (retval < 0) {
+                    qDebug() << "SOCKET ERROR: " << socket->error();
+                }
                 return static_cast<std::size_t>(0);
             }
             return static_cast<std::size_t>(retval);
         };
-        if (response_generator.try_write_response(request, writer) == 0) {
-            httpdlib::memory_response resp(httpdlib::codes::not_found);
-            resp.write(writer);
-        }
 
+        auto response = response_generator.get_response(request);
+        response->set_code(httpdlib::codes::ok);
+        response->write_next(writer);
+        m_responses[socket] = std::move(response);
         request.reset();
+        /*try {
+            if (response_generator.try_write_response(request, writer) == 0) {
+                httpdlib::memory_response resp(httpdlib::codes::not_found);
+                resp.write(writer, resp.ContinueOnZeroBytesWritten);
+            }
+        }
+        catch (std::exception &e) {
+            qDebug() << e.what();
+        }
+        qDebug() << "Resetting...";
+        request.reset();*/
     }
     else if (request.error()) {
     }
 }
 
+void WebServer::onBytesWritten(qint64) {
+    auto *socket = qobject_cast<QTcpSocket *>(sender());
+    auto &response = m_responses[socket];
+    auto writer = [&socket](const char *data, std::size_t length) {
+        qDebug() << "Writing " << length << " bytes";
+        qint64 retval = socket->write(data, length);
+        // socket->flush();
+        if (retval <= 0) {
+            if (retval < 0) {
+                qDebug() << "SOCKET ERROR: " << socket->error();
+            }
+            return static_cast<std::size_t>(0);
+        }
+        return static_cast<std::size_t>(retval);
+    };
+
+    response->write_next(writer);
+}
+
 void WebServer::onDisconnected() {
     qDebug() << "Disconnected";
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    qDebug() << socket->error();
+    m_responses.erase(socket);
     m_request_data.erase(socket);
     socket->deleteLater();
 }
