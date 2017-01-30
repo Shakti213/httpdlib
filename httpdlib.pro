@@ -35,7 +35,6 @@ HEADERS += \
     include/httpdlib/response_generator_collection.h \
     include/httpdlib/interface/response.h \
     include/httpdlib/interface/response_generator.h \
-    include/httpdlib/interface/response_generator_filter.h \
     include/httpdlib/stream_response.h
 
 INCLUDEPATH += include/

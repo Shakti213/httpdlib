@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "httpdlib/interface/response.h"
-#include "httpdlib/interface/response_generator_filter.h"
 #include "httpdlib/request.h"
 
 namespace httpdlib
