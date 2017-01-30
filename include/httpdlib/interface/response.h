@@ -45,10 +45,13 @@ protected:
     // Must be implemented by all.
     // prepare_write is called by write before any other
     // writes are made. The status line and the headers are written
-    // and finally write_payload is called.
+    // and finally write_payload_part is called once or multiple times
     virtual void prepare_write() = 0;
+    // Writes a part of the payload. The offset is the number of bytes
+    // of the payload already written.
     virtual std::size_t write_payload_part(writer_t writer,
                                            std::size_t offset) = 0;
+    // Function used to check if the entire payload has been written or not.
     virtual bool payload_done(std::size_t payload_bytes_written) const = 0;
     // Helper functions available for conveniance.
     // If content_length is 0 and code is 200 then this function

@@ -11,7 +11,7 @@ namespace httpdlib
 class stream_response : public interface::response
 {
     std::unique_ptr<std::istream> m_stream;
-    char m_buffer[15000];
+    char m_buffer[150000];
     std::size_t m_buffer_offset;
     std::size_t m_buffer_length;
     std::size_t m_size;
