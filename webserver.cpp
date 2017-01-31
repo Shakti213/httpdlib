@@ -97,17 +97,6 @@ void WebServer::onReadyRead() {
         response->write_next(writer);
         m_responses[socket] = std::move(response);
         request.reset();
-        /*try {
-            if (response_generator.try_write_response(request, writer) == 0) {
-                httpdlib::memory_response resp(httpdlib::codes::not_found);
-                resp.write(writer, resp.ContinueOnZeroBytesWritten);
-            }
-        }
-        catch (std::exception &e) {
-            qDebug() << e.what();
-        }
-        qDebug() << "Resetting...";
-        request.reset();*/
     }
     else if (request.error()) {
     }
@@ -129,6 +118,12 @@ void WebServer::onBytesWritten(qint64) {
             return static_cast<std::size_t>(retval);
         };
         response->write_next(writer);
+    }
+    else {
+        auto &request = m_request_data[socket];
+        if (request.header_value("connection") == "close") {
+            socket->close();
+        }
     }
 }
 
