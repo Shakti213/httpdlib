@@ -1,5 +1,5 @@
 #include "httpdlib/header_collection.h"
-#include "httpdlib/string_util.h"
+#include "httpdlib/string_util/string_util.h"
 #include <numeric>
 
 namespace httpdlib

@@ -1,9 +1,9 @@
 #include "webserver.h"
-#include "httpdlib/codes.h"
+#include "httpdlib/codes/codes.h"
 #include "httpdlib/filesystem_response_generator.h"
 #include "httpdlib/memory_response.h"
 #include "httpdlib/response_generator_collection.h"
-#include "httpdlib/string_util.h"
+#include "httpdlib/string_util/string_util.h"
 #include <QDebug>
 #include <QTcpSocket>
 
