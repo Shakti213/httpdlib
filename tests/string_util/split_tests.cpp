@@ -40,7 +40,7 @@ bool tst_string_util_split_once() {
     TEST_TRUE(double_separator_middle.first == "abc");
     TEST_TRUE(double_separator_middle.second == ";def");
 
-    END_TEST("tst_string_util_split_once()");
+    END_TEST();
     return ok;
 }
 
@@ -101,7 +101,7 @@ bool tst_string_util_split_all() {
     TEST_TRUE(double_separator_middle_no_empty[0] == "abc");
     TEST_TRUE(double_separator_middle_no_empty[1] == "def");
 
-    END_TEST("tst_string_util_split_all()");
+    END_TEST();
 }
 
 bool tst_string_util_split() {

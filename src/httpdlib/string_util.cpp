@@ -115,12 +115,12 @@ std::string trim_end(const std::string &data) {
 
 std::string trim_both(const std::string &data) {
     auto retval = trim_start(data);
-    retval = trim_end(std::move(retval));
+    retval = trim_end(retval);
 
     return retval;
 }
 
-std::vector<std::string> split_all(std::string str, char delimiter,
+std::vector<std::string> split_all(const std::string &str, char delimiter,
                                    bool include_empty_strings) {
     std::string collector;
     collector.reserve(str.size() / 2);
@@ -144,7 +144,7 @@ std::vector<std::string> split_all(std::string str, char delimiter,
     return retval;
 }
 
-std::pair<std::string, std::string> split_once(std::string str,
+std::pair<std::string, std::string> split_once(const std::string &str,
                                                char delimiter) {
 
     std::pair<std::string, std::string> retval;
@@ -156,7 +156,7 @@ std::pair<std::string, std::string> split_once(std::string str,
                   std::back_inserter(retval.second));
     }
     else {
-        retval.first = std::move(str);
+        retval.first = str;
     }
 
     return retval;
@@ -164,10 +164,10 @@ std::pair<std::string, std::string> split_once(std::string str,
 
 std::string to_lower(std::string str) {
     std::transform(str.begin(), str.end(), str.begin(), std::tolower);
-    return std::move(str);
+    return str;
 }
 
-bool ends_with(std::string string, std::string ending) {
+bool ends_with(const std::string &string, const std::string &ending) {
     bool retval = false;
     if (string.size() >= ending.size()) {
         auto string_riter = string.rbegin();
@@ -182,6 +182,27 @@ bool ends_with(std::string string, std::string ending) {
             string_riter++;
             ending_riter++;
         }
+    }
+
+    return retval;
+}
+
+bool starts_with(const std::string &string, const std::string &start) {
+    bool retval = false;
+    if (string.size() >= start.size()) {
+        auto string_iter = string.begin();
+        auto start_iter = start.begin();
+
+        while (start_iter != start.end()) {
+            if (*string_iter != *start_iter) {
+                return false;
+            }
+
+            string_iter++;
+            start_iter++;
+        }
+
+        retval = true;
     }
 
     return retval;

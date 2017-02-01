@@ -77,7 +77,7 @@ bool tst_string_util_trim_start() {
     }
     TEST_TRUE(fuzzy_testing_ok);
 
-    END_TEST("tst_string_util_trim_start()");
+    END_TEST();
 }
 
 bool tst_string_util_trim_end() {
@@ -154,7 +154,7 @@ bool tst_string_util_trim_end() {
     }
     TEST_TRUE(fuzzy_testing_ok);
 
-    END_TEST("tst_string_util_trim_end()");
+    END_TEST();
 }
 
 bool tst_string_util_trim_both() {
@@ -225,7 +225,7 @@ bool tst_string_util_trim_both() {
     }
     TEST_TRUE(fuzzy_testing_ok);
 
-    END_TEST("tst_string_util_trim_both()");
+    END_TEST();
 }
 
 bool tst_string_util_trim() {

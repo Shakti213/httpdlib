@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <iostream>
 
-using httpdlib::string_util::url_encode;
-
 bool tst_url_encode() {
     using httpdlib::string_util::url_encode;
     START_TEST("tst_url_encode()");
@@ -39,7 +37,7 @@ bool tst_url_encode() {
     MAKE_TESTVAR(must_be_encoded_mixed = url_encode("\tHello World!"));
     TEST_TRUE(must_be_encoded_mixed == "%09Hello%20World%21");
 
-    END_TEST("tst_url_encode()");
+    END_TEST();
 }
 
 bool tst_url_decode() {
@@ -96,5 +94,5 @@ bool tst_url_decode() {
                      url_decode("%09Hello%20World%21", decode_ok));
     TEST_TRUE(decode_ok && must_be_decoded_mixed == "\tHello World!");
 
-    END_TEST("tst_url_decode()");
+    END_TEST();
 }

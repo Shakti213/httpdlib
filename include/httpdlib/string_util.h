@@ -21,13 +21,15 @@ std::string trim_start(const std::string &data);
 std::string trim_end(const std::string &data);
 std::string trim_both(const std::string &data);
 
-std::vector<std::string> split_all(std::string str, char delimiter,
+std::vector<std::string> split_all(const std::string &str, char delimiter,
                                    bool include_empty_strings = true);
-std::pair<std::string, std::string> split_once(std::string str, char delimiter);
+std::pair<std::string, std::string> split_once(const std::string &str,
+                                               char delimiter);
 
 std::string to_lower(std::string str);
 
-bool ends_with(std::string string, std::string ending);
+bool ends_with(const std::string &string, const std::string &ending);
+bool starts_with(const std::string &string, const std::string &start);
 
 } // namespace httpdlib::string_util
 
