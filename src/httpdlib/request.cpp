@@ -58,22 +58,6 @@ parse_header_with_qvalues(std::string header_value) {
     return retval;
 }
 
-std::pair<std::string, std::string>
-parse_uri_and_query(const std::string &data) {
-    std::pair<std::string, std::string> retval;
-
-    auto uri_query_pair = split_once(data, '?');
-    if (uri_query_pair.second.length() > 0) {
-        retval.first = url_decode(std::move(uri_query_pair.first));
-        retval.second = std::move(uri_query_pair.second);
-    }
-    else {
-        retval.first = url_decode(data);
-    }
-
-    return retval;
-}
-
 std::map<std::string, std::string> parse_query_string(const std::string &data) {
     std::map<std::string, std::string> retval;
     std::string key_value;
@@ -83,8 +67,9 @@ std::map<std::string, std::string> parse_query_string(const std::string &data) {
                 key_value += data[i];
             }
             auto key_value_pair = split_once(key_value, '=');
-            retval[url_decode(std::move(key_value_pair.first))] =
-                url_decode(std::move(key_value_pair.second));
+            bool ok;
+            retval[url_decode(std::move(key_value_pair.first), ok)] =
+                url_decode(std::move(key_value_pair.second), ok);
             key_value = "";
         }
         else {
@@ -363,11 +348,16 @@ request &request::operator<<(char c) {
 
     case CollectingUri:
         if (c == '?' || c == '#' || c == ' ') {
-            m_uri = url_decode(m_request_collector);
+            bool uri_ok = true;
+            m_uri = url_decode(m_request_collector, uri_ok);
             m_request_collector = "";
             std::cout << "Ending CollectingUri, URI = \"" << m_uri << "\""
                       << std::endl;
-            if (c == '?') {
+            if (uri_ok == false) {
+                m_state = ResetRequired;
+                m_parse_result = BadRequest;
+            }
+            else if (c == '?') {
                 m_state = CollectingQuery;
             }
             else if (c == '#') {

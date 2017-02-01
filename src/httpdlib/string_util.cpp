@@ -13,20 +13,24 @@ namespace priv
 {
 
 bool safe_isspace(int c) {
-    return std::isspace(c & 0x00ff);
+    return std::isspace(c & 0x00ff) != 0;
+}
 }
 
-}
-
-char hex_to_ch(char ch) {
-    if(ch >= 'A' && ch <= 'F'){
-        return ch-'A' + 10;
+char hex_to_ch(char ch, bool &ok) {
+    ok = true;
+    if (ch >= 'A' && ch <= 'F') {
+        return ch - 'A' + 10;
     }
-    else if(ch >= 'a' && ch <= 'f') {
-        return ch-'a' + 10;
+    else if (ch >= 'a' && ch <= 'f') {
+        return ch - 'a' + 10;
     }
-
-    return ch - '0';
+    else if (ch >= '0' && ch <= '9') {
+        return ch - '0';
+    }
+    ok = false;
+    // Fail so return 0!
+    return 0;
 }
 
 std::string char_to_percent_hex(char ch) {
@@ -38,14 +42,29 @@ std::string char_to_percent_hex(char ch) {
     return retval;
 }
 
-std::string url_decode(const std::string &data) {
+std::string url_decode(const std::string &data, bool &ok) {
     std::string retval = "";
-    std::size_t i=0;
-    while(i<data.length()) {
-        if(data[i] == '%' && i <= data.length()-3) {
-            char ch = hex_to_ch(data[i+1])*16 + hex_to_ch(data[i+2]);
+    std::size_t i = 0;
+
+    ok = true;
+
+    while (i < data.length()) {
+        if (data[i] == '%' && i <= data.length() - 3) {
+            bool ok_high, ok_low;
+            char ch = hex_to_ch(data[i + 1], ok_high) * 16 +
+                      hex_to_ch(data[i + 2], ok_low);
+            ok = ok && ok_high && ok_low;
+            if (!ok) {
+                // Failure!
+                return retval;
+            }
             retval += ch;
             i += 3;
+        }
+        else if (data[i] == '%') {
+            // malformed string, fail!
+            ok = false;
+            return retval;
         }
         else {
             retval += data[i++];
@@ -57,11 +76,10 @@ std::string url_decode(const std::string &data) {
 
 std::string url_encode(const std::string &data) {
     std::string retval = "";
-    for(auto c: data) {
-        if((c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z') ||
-                (c >= '0' && c <= '9') ||
-                (c == '-' || c == '.' || c == '_' || c == '~')) {
+    for (auto c : data) {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+            (c >= '0' && c <= '9') ||
+            (c == '-' || c == '.' || c == '_' || c == '~')) {
             retval += c;
         }
         else {
@@ -74,7 +92,7 @@ std::string url_encode(const std::string &data) {
 
 std::string trim_start(const std::string &data) {
     auto start = std::find_if_not(data.begin(), data.end(), priv::safe_isspace);
-    if(start == data.end()) {
+    if (start == data.end()) {
         // Pure whitespace string, so return an empty string instead
         return "";
     }
@@ -82,12 +100,12 @@ std::string trim_start(const std::string &data) {
     return std::string(start, data.end());
 }
 
-std::string trim_end(const std::string &data)  {
-    if(data.size() == 0) {
+std::string trim_end(const std::string &data) {
+    if (data.size() == 0) {
         return "";
     }
-    auto back = data.end()-1;
-    while(priv::safe_isspace(*back) && back != data.begin()) {
+    auto back = data.end() - 1;
+    while (priv::safe_isspace(*back) && back != data.begin()) {
         back--;
     }
     // Make it 1 past the end
@@ -97,18 +115,21 @@ std::string trim_end(const std::string &data)  {
 
 std::string trim_both(const std::string &data) {
     auto retval = trim_start(data);
-    retval = std::move(trim_end(std::move(retval)));
+    retval = trim_end(std::move(retval));
 
     return retval;
 }
 
-std::vector<std::string> split_all(std::string str, char delimiter) {
+std::vector<std::string> split_all(std::string str, char delimiter,
+                                   bool include_empty_strings) {
     std::string collector;
-    collector.reserve(str.size()/2);
+    collector.reserve(str.size() / 2);
     std::vector<std::string> retval;
-    for(auto c: str) {
-        if(c == delimiter) {
-            retval.push_back(collector);
+    for (auto c : str) {
+        if (c == delimiter) {
+            if (collector.size() > 0 || include_empty_strings) {
+                retval.push_back(collector);
+            }
             collector = "";
         }
         else {
@@ -116,21 +137,23 @@ std::vector<std::string> split_all(std::string str, char delimiter) {
         }
     }
 
-    if(collector.size() > 0) {
+    if (collector.size() > 0 || (include_empty_strings && str.length() > 0)) {
         retval.push_back(collector);
     }
 
     return retval;
 }
 
-std::pair<std::string, std::string> split_once(std::string str, char delimiter) {
+std::pair<std::string, std::string> split_once(std::string str,
+                                               char delimiter) {
 
     std::pair<std::string, std::string> retval;
 
     auto split_point = std::find(str.begin(), str.end(), delimiter);
-    if(split_point != str.end()) {
+    if (split_point != str.end()) {
         std::copy(str.begin(), split_point, std::back_inserter(retval.first));
-        std::copy(split_point+1, str.end(), std::back_inserter(retval.second));
+        std::copy(split_point + 1, str.end(),
+                  std::back_inserter(retval.second));
     }
     else {
         retval.first = std::move(str);
@@ -144,15 +167,14 @@ std::string to_lower(std::string str) {
     return std::move(str);
 }
 
-bool ends_with(std::string string, std::string ending)
-{
+bool ends_with(std::string string, std::string ending) {
     bool retval = false;
-    if(string.size() >= ending.size()) {
+    if (string.size() >= ending.size()) {
         auto string_riter = string.rbegin();
         auto ending_riter = ending.rbegin();
         retval = true;
-        while(ending_riter != ending.rend()) {
-            if(*string_riter != *ending_riter) {
+        while (ending_riter != ending.rend()) {
+            if (*string_riter != *ending_riter) {
                 retval = false;
                 break;
             }
