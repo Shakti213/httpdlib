@@ -9,10 +9,6 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-linux-g++ {
-    QMAKE_CXXFLAGS += -std=c++1z
-}
-
 SOURCES += main.cpp \
     webserver.cpp \
     ../../src/httpdlib/string_util/string_util.cpp \

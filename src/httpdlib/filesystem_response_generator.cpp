@@ -3,14 +3,14 @@
 #include "httpdlib/memory_response.h"
 #include "httpdlib/stream_response.h"
 #include "httpdlib/util/content_type.h"
-#include <filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 
 // Handle different filesystem namespaces
 #ifdef _MSC_VER
 #define fs_namespace std::experimental::filesystem
 #else
-#define fs_namespace std::filesystem
+#define fs_namespace std::experimental::filesystem
 #endif
 
 bool file_exists(std::string file_and_path) {
