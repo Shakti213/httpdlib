@@ -15,6 +15,10 @@ namespace priv
 bool safe_isspace(int c) {
     return std::isspace(c & 0x00ff) != 0;
 }
+
+char tolower(char ch) {
+    return static_cast<char>(std::tolower(ch));
+}
 }
 
 char hex_to_ch(char ch, bool &ok) {
@@ -163,7 +167,7 @@ std::pair<std::string, std::string> split_once(const std::string &str,
 }
 
 std::string to_lower(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(), std::tolower);
+    std::transform(str.begin(), str.end(), str.begin(), priv::tolower);
     return str;
 }
 
