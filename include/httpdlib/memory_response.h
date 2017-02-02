@@ -2,6 +2,7 @@
 #define MEMORY_RESPONSE_H
 
 #include "httpdlib/interface/response.h"
+#include <iterator>
 
 namespace httpdlib
 {
@@ -39,7 +40,7 @@ public:
     template <typename T>
     void set_data(const T &data) {
         m_data.clear();
-        m_data.reserve(std::size(data));
+        m_data.reserve(std::distance(std::begin(data), std::end(data)));
         std::copy(std::begin(data), std::end(data), std::back_inserter(m_data));
     }
 
