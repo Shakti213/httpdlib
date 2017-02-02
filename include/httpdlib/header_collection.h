@@ -4,9 +4,11 @@
 #include <map>
 #include <string>
 
-namespace httpdlib {
+namespace httpdlib
+{
 
-class header_collection {
+class header_collection
+{
     typedef std::map<std::string, std::string> storage_t;
 
 public:
@@ -28,14 +30,14 @@ public:
 
     // Extract key and value from iterators without
     // knowing anything of the underlying storage
-    static const std::string& key(iterator iter);
-    static std::string& value(iterator iter);
+    static const std::string &key(iterator iter);
+    static std::string &value(iterator iter);
 
-    static const std::string& key(const_iterator iter);
-    static const std::string& value(const_iterator iter);
+    static const std::string &key(const_iterator iter);
+    static const std::string &value(const_iterator iter);
 
-    static const std::string& key(const foreach_t& iter);
-    static const std::string& value(const foreach_t& iter);
+    static const std::string &key(const foreach_t &iter);
+    static const std::string &value(const foreach_t &iter);
 
     // Make this iteratable like any other container
     iterator begin();

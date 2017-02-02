@@ -24,8 +24,6 @@ public:
 
     // public virtuals
     virtual ~response_generator();
-    virtual std::size_t try_write_response(const request &request,
-                                           response::writer_t writer);
 
     bool is_handler_for_request(const request &request);
 
@@ -33,7 +31,7 @@ public:
     void clear_filters();
 
 protected:
-    // default implementation is probably sane for most cases
+    // default implementatiosn is probably sane for most cases
     virtual bool check_filters(const request &request);
     virtual bool priv_is_handler_for_request(const request &);
 };

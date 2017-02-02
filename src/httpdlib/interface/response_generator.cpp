@@ -12,18 +12,6 @@ response_generator::~response_generator() {
     // Do nothing
 }
 
-size_t response_generator::try_write_response(const request &request,
-                                              response::writer_t writer) {
-    /*if (is_handler_for_request(request)) {
-        auto response = get_response(request);
-        if (response) {
-            return response->write(writer);
-        }
-    }*/
-
-    return 0;
-}
-
 void response_generator::clear_filters() {
     m_filters.clear();
 }

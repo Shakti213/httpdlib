@@ -24,17 +24,18 @@ namespace httpdlib
  * assumed to be utf-8 files and charset will be set to this.
  *
  */
-class filesystem_response_generator: public interface::response_generator
+class filesystem_response_generator : public interface::response_generator
 {
     std::string m_directory;
+
 public:
     filesystem_response_generator(std::string directory);
 
     // response_generator interface
 public:
-    std::unique_ptr<interface::response> get_response(const request &req) override;
+    std::unique_ptr<interface::response>
+    get_response(const request &req) override;
 };
-
 }
 
 #endif // FILESYSTEM_RESPONSE_GENERATOR_H

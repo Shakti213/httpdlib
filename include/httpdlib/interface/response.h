@@ -16,7 +16,7 @@ namespace httpdlib
 namespace interface
 {
 
-class response
+class  response
 {
 protected:
     header_collection m_headers;

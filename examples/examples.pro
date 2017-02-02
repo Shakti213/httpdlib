@@ -1,4 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS = \
-	qt_webserver
+SUBDIRS += \
+        qt_webserver
