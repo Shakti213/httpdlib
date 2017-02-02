@@ -9,6 +9,8 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+unix: LIBS += -lstdc++fs
+
 SOURCES += main.cpp \
     webserver.cpp \
     ../../src/httpdlib/string_util/string_util.cpp \
