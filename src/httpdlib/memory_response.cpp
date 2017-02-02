@@ -1,4 +1,5 @@
 #include "httpdlib/memory_response.h"
+#include <cstring>
 
 namespace httpdlib
 {
