@@ -1,6 +1,3 @@
-before_script:
-  - apt-get update -qq && apt-get install -y -qq qt5-default
-
 example_qt_webserver:
   script:
     - g++ --version && cd examples/qt_webserver && qmake && make
