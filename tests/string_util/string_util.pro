@@ -4,9 +4,13 @@ TARGET = tst_httpdlib
 CONFIG += console
 CONFIG -= app_bundle
 
+INCLUDEPATH += ../../include
+
+TEMPLATE = app
+
 SOURCES += \
     string_util/trim_tests.cpp \
-    ../src/httpdlib/string_util.cpp \
+    ../../src/httpdlib/string_util/string_util.cpp \
     main.cpp \
     string_util/split_tests.cpp \
     string_util/url_encode_decode.cpp \
@@ -14,7 +18,7 @@ SOURCES += \
     string_util/starts_ends_with.cpp
 
 HEADERS += \
-    ../include/httpdlib/string_util.h \
+    ../../include/httpdlib/string_util/string_util.h \
     test_macros.h
 
 INCLUDEPATH += ../include

@@ -1,4 +1,4 @@
-#include "../../include/httpdlib/string_util.h"
+#include "httpdlib/string_util/string_util.h"
 #include "test_macros.h"
 #include <algorithm>
 #include <cctype>
