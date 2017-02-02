@@ -1,5 +1,5 @@
 before_script:
-  - apt-get update -qq && apt-get install -y -qq qt5-default
+  - apt-get update -qq && apt-get install -y -qq qt5base-dev
 
 example_qt_webserver:
   script:

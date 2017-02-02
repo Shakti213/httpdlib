@@ -1,6 +1,6 @@
 QT += core network gui
 
-CONFIG += c++11
+CONFIG += c++17
 CONFIG -= use_platform_content_types
 
 TARGET = httpdlib_example_qt_webserver
