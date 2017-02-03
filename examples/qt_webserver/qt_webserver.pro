@@ -47,6 +47,7 @@ use_platform_content_types {
     DEFINES *= USE_PLATFORM_CONTENT_TYPES
 
     win32:SOURCES *= ../../src/httpdlib/util/platform/win32_content_type.cpp
+    !win32:SOURCES *= ../../src/httpdlib/util/platform/stub_content_type.cpp
 }
 
 DISTFILES +=

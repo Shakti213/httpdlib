@@ -1,4 +1,11 @@
+# This does not produce an actual usable library, however to enable
+# build testing we specify this as a library
 INCLUDEPATH += ../include
+
+TEMPLATE = lib
+
+CONFIG += c++14
+unix: LIBS += -lstdc++fs
 
 HEADERS += \
            ../include/httpdlib/filesystem_response_generator.h \
@@ -26,4 +33,9 @@ SOURCES +=  \
            httpdlib/interface/response_generator.cpp \
            httpdlib/string_util/string_util.cpp \
            httpdlib/util/content_type.cpp \
-           httpdlib/util/platform/win32_content_type.cpp
+
+use_platform_content_types {
+    DEFINES *= USE_PLATFORM_CONTENT_TYPES
+    win32:SOURCES *= httpdlib/util/platform/win32_content_type.cpp
+    !win32:SOURCES *= httpdlib/util/platform/stub_content_type.cpp
+}

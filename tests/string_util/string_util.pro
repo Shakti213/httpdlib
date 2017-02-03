@@ -1,12 +1,25 @@
 CONFIG += c++11
 
-TARGET = tst_httpdlib
+TARGET = tests_string_util
 CONFIG += console
 CONFIG -= app_bundle
 
 INCLUDEPATH += ../../include
 
 TEMPLATE = app
+
+run_target.target = run
+run_target.recurse_target = run_test
+run_target.CONFIG = recursive
+run_target.recurse = "Debug"
+
+debug_run_target.target = run_test
+win32:debug_run_target.commands = $(DESTDIR_TARGET)
+unix:debug_run_target.commands = $(DESTDIR_TARGET)
+debug_run_target.depends = $(DESTDIR_TARGET)
+
+QMAKE_EXTRA_TARGETS += run_target debug_run_target
+
 
 SOURCES += \
     string_util/trim_tests.cpp \

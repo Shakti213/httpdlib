@@ -298,6 +298,12 @@ bool request::error() const {
 }
 
 request &request::operator<<(char c) {
+    if (m_state >= WaitingMethodStart && m_state < WaitingData) {
+        if (c <= 0) {
+            m_state = ResetRequired;
+            m_parse_result = BadRequest;
+        }
+    }
     switch (m_state) {
     case WaitingMethodStart:
         if (c >= 'A' && c <= 'Z') {

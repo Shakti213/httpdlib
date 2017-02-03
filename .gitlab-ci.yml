@@ -1,3 +1,37 @@
-example_qt_webserver:
+stages:
+  - build
+  - test
+  - examples
+build_src:
+  stage: build
+  tags:
+    - qt5
+    - c++14
   script:
-    - g++ --version && cd examples/qt_webserver && qmake && make clean && make
+    cd src && qmake && make distclean && make
+
+build_tests:
+  stage: build
+  tags:
+    - qt5
+    - c++14
+  script:
+    cd tests && qmake && make distclean && make
+
+run_tests:
+  allow_failure: true
+  stage: test
+  tags:
+    - qt5
+    - c++14
+    script:
+      cd tests && make run_all
+
+
+example_qt_webserver:
+  allow_failure: true
+  stage: examples
+  tags:
+    - qt5
+  script:
+    - g++ --version && cd examples/qt_webserver && qmake && make distclean && make
