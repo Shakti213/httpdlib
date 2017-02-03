@@ -10,22 +10,13 @@ build_src:
   script:
     - cd src && qmake && make clean && make
 
-build_tests:
-  stage: build
-  tags:
-    - qt5
-    - c++14
-  script:
-    - cd tests && qmake && make clean && qmake && make
-
-run_tests:
-  allow_failure: true
+build_run_tests:
   stage: test
   tags:
     - qt5
     - c++14
   script:
-    - cd tests && make run_all
+    - cd tests && qmake && make && make run_all
 
 
 example_qt_webserver:
