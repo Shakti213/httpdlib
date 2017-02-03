@@ -26,4 +26,4 @@ examples:
     - qt5
     - c++14
   script:
-    - examples && qmake && make clean && make
+    - cd examples && qmake && make clean && make
