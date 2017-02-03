@@ -8,7 +8,7 @@ build_src:
     - qt5
     - c++14
   script:
-    cd src && qmake && make distclean && make
+    - cd src && qmake && make distclean && make
 
 build_tests:
   stage: build
@@ -16,7 +16,7 @@ build_tests:
     - qt5
     - c++14
   script:
-    cd tests && qmake && make distclean && make
+    - cd tests && qmake && make distclean && make
 
 run_tests:
   allow_failure: true
@@ -24,8 +24,8 @@ run_tests:
   tags:
     - qt5
     - c++14
-    script:
-      cd tests && make run_all
+  script:
+    - cd tests && make run_all
 
 
 example_qt_webserver:
