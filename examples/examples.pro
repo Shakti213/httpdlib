@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-        qt_webserver
+        qt_webserver \
+        stdin_example
