@@ -19,10 +19,11 @@ build_run_tests:
     - cd tests && qmake "CONFIG+=debug" && make && make run_all
 
 
-example_qt_webserver:
+examples:
   allow_failure: true
   stage: examples
   tags:
     - qt5
+    - c++14
   script:
-    - g++ --version && cd examples/qt_webserver && qmake && make clean && make
+    - examples && qmake && make clean && make
