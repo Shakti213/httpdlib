@@ -16,7 +16,7 @@ build_run_tests:
     - qt5
     - c++14
   script:
-    - cd tests && qmake && make && make run_all
+    - cd tests && qmake "CONFIG+=debug" && make && make run_all
 
 
 example_qt_webserver:

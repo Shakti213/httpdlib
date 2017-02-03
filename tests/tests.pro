@@ -3,6 +3,9 @@ TEMPLATE = subdirs
 SUBDIRS = \
     string_util
 
+CONFIG-=release
+CONFIG+=debug
+
 run_target.target = run_all
 run_target.commands =@set MAKEFLAGS=$(MAKEFLAGS)$$escape_expand(\n\t)
 for(s, SUBDIRS) {

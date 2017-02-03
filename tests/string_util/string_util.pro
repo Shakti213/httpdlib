@@ -11,7 +11,7 @@ TEMPLATE = app
 run_target.target = run
 run_target.recurse_target = run_test
 run_target.CONFIG = recursive
-run_target.recurse = "Release"
+run_target.recurse = "Debug"
 
 debug_run_target.target = run_test
 win32:debug_run_target.commands = $(DESTDIR_TARGET)
