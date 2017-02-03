@@ -172,6 +172,20 @@ bool request::check_accepts(std::string value, std::string header_value,
     return false;
 }
 
+void request::log(int level, const std::string &data) {
+    if (m_log_level >= level) {
+        std::cout << data << std::endl;
+    }
+}
+
+int request::log_level() const {
+    return m_log_level;
+}
+
+void request::set_log_level(int log_level) {
+    m_log_level = log_level;
+}
+
 bool request::accepts_media_type(std::string media_type) {
     std::string accept_header = header_value("accept");
     if (accept_header.length() == 0) {
@@ -281,6 +295,10 @@ std::string request::header_value(std::string header_name) {
     return m_headers.value(std::move(header_name));
 }
 
+const header_collection &request::headers() const {
+    return m_headers;
+}
+
 request::query_values_t &request::query_values() {
     return m_query_string_values;
 }
@@ -320,11 +338,11 @@ request &request::operator<<(char c) {
                           m_method) == m_allowed_methods.end()) {
                 m_state = ResetRequired;
                 m_parse_result = MethodNotAllowed;
-                std::cout << "Method not allowed: " << m_method << std::endl;
+                log(1, "Method not allowed: " + m_method);
             }
             else {
-                std::cout << "Ending CollectingMethod m_method = \"" << m_method
-                          << "\"" << std::endl;
+                log(3,
+                    "Ending CollectingMethod m_method = \"" + m_method + "\"");
                 m_state = WaitingUriStart;
             }
         }
@@ -338,7 +356,7 @@ request &request::operator<<(char c) {
                                  })
                     ->length();
             if (m_method.size() > max_allowed_method) {
-                std::cout << "Method not allowed..." << std::endl;
+                log(1, "Method not allowed: " + m_method);
                 m_parse_result = MethodNotAllowed;
                 m_state = ResetRequired;
             }
@@ -357,8 +375,7 @@ request &request::operator<<(char c) {
             bool uri_ok = true;
             m_uri = url_decode(m_request_collector, uri_ok);
             m_request_collector = "";
-            std::cout << "Ending CollectingUri, URI = \"" << m_uri << "\""
-                      << std::endl;
+            log(3, "Ending CollectingUri, URI = \"" + m_uri + "\"");
             if (uri_ok == false) {
                 m_state = ResetRequired;
                 m_parse_result = BadRequest;
@@ -384,13 +401,11 @@ request &request::operator<<(char c) {
 
     case CollectingQuery:
         if (c == '#' || c == ' ') {
-            std::cout << "Query string received: " << m_request_collector
-                      << std::endl;
+            log(1, "Query string received: " + m_request_collector);
             m_query_string_values = parse_query_string(m_request_collector);
             m_request_collector = "";
             for (auto c : m_query_string_values) {
-                std::cout << "\t\"" << c.first << "\" = \"" << c.second << "\""
-                          << std::endl;
+                log(3, "\t\"" + c.first + "\" = \"" + c.second + "\"");
             }
             if (c == '#') {
                 m_state = CollectingFragment;
@@ -444,8 +459,8 @@ request &request::operator<<(char c) {
                     m_majorVersion = std::stoi(matches[1]);
                     m_minorVersion = std::stoi(matches[2]);
 
-                    std::cout << "HTTP version = " << m_majorVersion << "."
-                              << m_minorVersion << std::endl;
+                    log(3, "HTTP version = " + std::to_string(m_majorVersion) +
+                               "." + std::to_string(m_minorVersion));
                     if (m_majorVersion != 1 || m_minorVersion != 1) {
                         m_state = ResetRequired;
                         m_parse_result = UnsupportedVersion;
@@ -474,26 +489,26 @@ request &request::operator<<(char c) {
     case WaitingHeader:
         m_request_collector += c;
         if (ends_with(m_request_collector, "\r\n\r\n")) {
-            std::cout << "Ending WaitingHeader..." << std::endl;
+            log(1, "Ending WaitingHeader...");
             m_headers.parse(m_request_collector);
 
             for (auto i : m_headers) {
-                std::cout << "\tHeader: \"" << m_headers.key(i) << "\" = \""
-                          << m_headers.value(i) << "\"" << std::endl;
+                log(3, "\tHeader: \"" + m_headers.key(i) + "\" = \"" +
+                           m_headers.value(i) + "\"");
             }
 
             m_request_data_to_read = content_length();
             if (m_request_data_to_read != 0) {
                 m_state = WaitingData;
-                std::cout << "Waiting data: " << m_request_data_to_read
-                          << " bytes" << std::endl;
+                log(3, "Waiting data: " +
+                           std::to_string(m_request_data_to_read) + " bytes");
                 m_request_data.reserve(m_request_data_to_read);
-                std::cout << "m_request_data.size() = " << m_request_data.size()
-                          << std::endl;
+                log(3, "m_request_data.size() = " +
+                           std::to_string(m_request_data.size()));
             }
             else {
                 m_parse_result = Finished;
-                std::cout << "Finished" << std::endl;
+                log(2, "Finished");
                 m_state = ResetRequired;
             }
         }
@@ -505,8 +520,7 @@ request &request::operator<<(char c) {
                 // Ignore everything!
                 m_state = ResetRequired;
                 m_parse_result = BadRequest;
-                std::cout << "Bad request detected...bad header format"
-                          << std::endl;
+                log(1, "Bad request detected...bad header format");
             }
         }
         break;
@@ -514,13 +528,8 @@ request &request::operator<<(char c) {
     case WaitingData:
         m_request_data.push_back(c);
         if (m_request_data.size() == m_request_data_to_read) {
-            std::cout << "Finished receiving data. Received "
-                      << m_request_data.size() << " bytes" << std::endl;
-            for (auto c : m_request_data) {
-                std::cout << "\"" << c << "\" ";
-            }
-
-            std::cout << std::endl;
+            log(3, "Finished receiving data. Received " +
+                       std::to_string(m_request_data.size()) + " bytes");
             m_state = ResetRequired;
             m_parse_result = Finished;
         }

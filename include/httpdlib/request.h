@@ -72,6 +72,10 @@ private:
     bool check_accepts(std::string value, std::string header_value,
                        std::string always_accepts);
 
+    int m_log_level = 0;
+
+    void log(int level, const std::string &data);
+
 public:
     request();
 
@@ -141,6 +145,12 @@ public:
      * @return Value if available, otherwise empty string.
      */
     std::string header_value(std::string header_name);
+
+    /**
+     * @brief   Gets all the headers
+     * @return  The header collection
+     */
+    const header_collection &headers() const;
 
     /**
      * @brief Gets the query values.
@@ -239,6 +249,8 @@ public:
      * @param The new maximum URI length.
      */
     void set_max_uri_length(const std::size_t &max_uri);
+    int log_level() const;
+    void set_log_level(int log_level);
 };
 }
 
