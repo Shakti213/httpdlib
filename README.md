@@ -14,6 +14,12 @@ or single/multithreading or any such decisions one might want to make. It
 provides easy capability of parsing HTTP requests and generating HTTP responses.
 The transportation of these requests and responses is not done by this library.
 
+## Licensing
+The main library and code (everything inside include and src, as well as tests)
+is available under the MIT license. Examples are available with different
+licenses depending on any third-party libraries. See the LICENSE file in each
+example (if available) for further details.
+
 ## Structure
 The file and folder structure is rather easy to understand. The
 *include/httpdlib* folder is the root include folder, and everything in this
