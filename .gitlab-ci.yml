@@ -9,7 +9,7 @@ windows_build_src:
     - windows
     - visualstudio
   script:
-    - "dir"
+    - "echo %cd% && CALL c:/multi-runner/env.bat && echo %cd%"
 
 linux_build_src:
   stage: build
