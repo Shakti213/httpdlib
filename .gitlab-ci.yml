@@ -9,7 +9,7 @@ windows_build_src:
     - windows
     - visualstudio
   script:
-    - "c:/multi-runner/env.bat && cd src && qmake && jom clean && jom"
+    - "c:/multi-runner/env.bat && dir"
 
 linux_build_src:
   stage: build
