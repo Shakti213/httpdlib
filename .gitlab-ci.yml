@@ -2,27 +2,40 @@ stages:
   - build
   - test
   - examples
-build_src:
+
+windows_build_src:
   stage: build
   tags:
+    - windows
+    - visualstudio
+  script:
+    - env.bat
+    - cd src && qmake && jom clean && jom
+
+linux_build_src:
+  stage: build
+  tags:
+    - linux
     - qt5
     - c++14
   script:
     - cd src && qmake && make clean && make
 
-build_run_tests:
+linux_build_run_tests:
   stage: test
   tags:
+    - linux
     - qt5
     - c++14
   script:
     - cd tests && qmake "CONFIG+=debug" && make && make run_all
 
 
-examples:
+linux_examples:
   allow_failure: true
   stage: examples
   tags:
+    - linux
     - qt5
     - c++14
   script:
