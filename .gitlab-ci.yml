@@ -3,6 +3,17 @@ stages:
   - test
   - examples
 
+.linux_tags_template: &linux_tags
+  tags:
+    - linux
+    - qt5
+    - c++14
+
+.windows_tags_template: &windows_tags
+  tags:
+    - windows
+    - visualstudio
+
 windows_build_src:
   stage: build
   tags:
@@ -30,6 +41,15 @@ linux_build_run_tests:
   script:
     - cd tests && qmake "CONFIG+=debug" && make && make run_all
 
+windows_build_run_tests:
+  stage: test
+  tags:
+    - windows
+    - visualstudio
+  script:
+    - "CALL c:/multi-runner-env.bat"
+    - "cd tests && qmake \"CONFIG+=debug\" && jom && jom run_all"
+
 
 linux_examples:
   allow_failure: true
@@ -40,3 +60,11 @@ linux_examples:
     - c++14
   script:
     - cd examples && qmake && make clean && make
+
+windows_examples:
+  allow_failure: true
+  stage: examples
+  <<: *windows_tags
+  script:
+    - "CALL c:/multi-runner-env.bat"
+    - "cd examples && qmake && jom clean && jom"
