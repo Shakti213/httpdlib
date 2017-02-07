@@ -103,10 +103,13 @@ class with at least one pure virtual function. Thus it can not be instantiated
 directly but it does provides a couple of helper functions for any derived
 classes.
 
-Any derived class must implement at least these three methods: ``` c++ virtual
-void response::prepare_write() = 0; virtual std::size_t
-response::write_payload_part(writer_t writer, std::size_t offset) = 0; virtual
-bool payload_done(std::size_t payload_bytes_written) const = 0; ```
+Any derived class must implement at least these three methods:
+``` c++
+virtual void response::prepare_write() = 0;
+virtual std::size_t response::write_payload_part(writer_t writer, std::size_t offset) = 0;
+virtual bool payload_done(std::size_t payload_bytes_written) const = 0;
+```
+
 `prepare_write()` is called by the default `response::write_next(writer_t)`
 function before any writes are made. Thus any changes to the response code, or
 setting of any headers based on content etc. can be made here.
