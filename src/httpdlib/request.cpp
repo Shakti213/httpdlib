@@ -27,6 +27,7 @@
 #include <cctype>
 #include <iostream>
 #include <iterator>
+#include <numeric>
 #include <regex>
 #include <string>
 #include <tuple>
@@ -108,15 +109,11 @@ request::ParseResult request::parse_result() const {
 }
 
 std::string request::allowed_methods_string() const {
-    std::string retval = "";
-    for (std::size_t i = 0; i < m_allowed_methods.size(); i++) {
-        if (i != 0) {
-            retval += ", ";
-        }
-
-        retval += m_allowed_methods[i];
-    }
-
+    std::string retval =
+        std::accumulate(m_allowed_methods.begin(), m_allowed_methods.end(),
+                        std::string(), [](auto acc, auto elem) {
+                            return acc + (acc.size() > 0 ? "," : "") + elem;
+                        });
     return retval;
 }
 
