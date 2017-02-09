@@ -44,10 +44,10 @@ private:
 
 public:
     bool contains(const std::string &name) const;
-    std::string value(std::string name) const;
-    void parse(std::string str);
-    void add(std::string key, std::string value);
-    void remove(std::string key);
+    std::string value(const std::string &name) const;
+    void parse(const std::string &str);
+    void add(const std::string &key, const std::string &value);
+    void remove(const std::string &key);
 
     void clear();
 

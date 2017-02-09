@@ -35,8 +35,8 @@ bool header_collection::contains(const std::string &name) const {
     return header != m_headers.end();
 }
 
-std::string header_collection::value(std::string name) const {
-    auto header = m_headers.find(to_lower(std::move(name)));
+std::string header_collection::value(const std::string &name) const {
+    auto header = m_headers.find(to_lower(name));
     if (header != m_headers.end()) {
         return header->second;
     }
@@ -44,15 +44,15 @@ std::string header_collection::value(std::string name) const {
     return "";
 }
 
-void header_collection::add(std::string key, std::string value) {
-    m_headers[to_lower(std::move(key))] = value;
+void header_collection::add(const std::string &key, const std::string &value) {
+    m_headers[to_lower(key)] = value;
 }
 
-void header_collection::remove(std::string key) {
-    m_headers.erase(to_lower(std::move(key)));
+void header_collection::remove(const std::string &key) {
+    m_headers.erase(to_lower(key));
 }
 
-void header_collection::parse(std::string str) {
+void header_collection::parse(const std::string &str) {
     auto all_rows = split_all(str, '\n');
     for (const auto &row : all_rows) {
         auto split_at_colon = split_once(row, ':');

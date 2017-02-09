@@ -209,7 +209,7 @@ void request::set_log_level(int log_level) {
     m_log_level = log_level;
 }
 
-bool request::accepts_media_type(std::string media_type) {
+bool request::accepts_media_type(const std::string &media_type) {
     std::string accept_header = header_value("accept");
     if (accept_header.length() == 0) {
         return true;
@@ -253,12 +253,12 @@ bool request::accepts_media_type(std::string media_type) {
     return false;
 }
 
-bool request::accepts_charset(std::string charset) {
+bool request::accepts_charset(const std::string &charset) {
     return check_accepts(std::move(charset), header_value("accept-charset"),
                          "iso-8859-1");
 }
 
-bool request::accepts_language(std::string language) {
+bool request::accepts_language(const std::string &language) {
     auto language_header = header_value("accept-laguage");
     if (check_accepts(language, language_header, "") == false) {
         // split and check the prefix of the tag.
@@ -269,7 +269,7 @@ bool request::accepts_language(std::string language) {
     return true;
 }
 
-bool request::accepts_encoding(std::string encoding) {
+bool request::accepts_encoding(const std::string &encoding) {
     return check_accepts(std::move(encoding), header_value("accept-encoding"),
                          "identity");
 }
@@ -294,11 +294,11 @@ void request::reset() {
     m_fragment = "";
 }
 
-std::string request::method() const {
+const std::string &request::method() const {
     return m_method;
 }
 
-std::string request::uri() const {
+const std::string &request::uri() const {
     return m_uri;
 }
 
@@ -310,12 +310,12 @@ size_t request::content_length() const {
     return 0;
 }
 
-bool request::has_header(std::string header_name) {
+bool request::has_header(const std::string &header_name) const {
     return m_headers.contains(header_name);
 }
 
-std::string request::header_value(std::string header_name) {
-    return m_headers.value(std::move(header_name));
+std::string request::header_value(const std::string &header_name) const {
+    return m_headers.value(header_name);
 }
 
 const header_collection &request::headers() const {

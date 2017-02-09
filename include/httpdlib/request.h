@@ -107,14 +107,14 @@ public:
      * @param Media type to check if the request will accept.
      * @return  True if accepted, otherwise false.
      */
-    bool accepts_media_type(std::string media_type);
+    bool accepts_media_type(const std::string &media_type);
 
     /**
      * @brief Checks if the request will accept a specified charset.
      * @param charset The charset to check.
      * @return True if the charset is accepted, otherwise false.
      */
-    bool accepts_charset(std::string charset);
+    bool accepts_charset(const std::string &charset);
 
     /**
      * @brief Checks if the request will accept a specified language
@@ -122,14 +122,14 @@ public:
      * (eg. "en-gb") or without tag (eg. "en").
      * @return True if accepted, otherwise false.
      */
-    bool accepts_language(std::string language);
+    bool accepts_language(const std::string &language);
 
     /**
      * @brief Checks if the request will accepted the specified encoding.
      * @param encoding The encoding to check.
      * @return True if accepted, otherwise false.
      */
-    bool accepts_encoding(std::string encoding);
+    bool accepts_encoding(const std::string &encoding);
     /**
      * @brief Resets the request objects state
      *
@@ -142,14 +142,14 @@ public:
      * @brief Method parsed from the request line.
      * @return method;
      */
-    std::string method() const;
+    const std::string &method() const;
     /**
      * @brief The URI from the request line.
      * @return
      *
      * This does not include the query string or the fragment string.
      */
-    std::string uri() const;
+    const std::string &uri() const;
     /**
      * @brief The content-length. Currently only determined by the
      * Content-Length header.
@@ -161,13 +161,13 @@ public:
      * @param The header name to look for.
      * @return True if the header is available.
      */
-    bool has_header(std::string header_name);
+    bool has_header(const std::string &header_name) const;
     /**
      * @brief Retrieves the header value
      * @param Name of the header to get the value of
      * @return Value if available, otherwise empty string.
      */
-    std::string header_value(std::string header_name);
+    std::string header_value(const std::string &header_name) const;
 
     /**
      * @brief   Gets all the headers
