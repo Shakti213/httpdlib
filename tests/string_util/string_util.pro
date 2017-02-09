@@ -5,6 +5,7 @@ CONFIG += console
 CONFIG -= app_bundle
 
 INCLUDEPATH += ../../include
+INCLUDEPATH += ../common
 
 TEMPLATE = app
 
@@ -24,16 +25,13 @@ QMAKE_EXTRA_TARGETS += run_target debug_run_target
 
 
 SOURCES += \
-    string_util/trim_tests.cpp \
+    tests/trim_tests.cpp \
     ../../src/httpdlib/string_util/string_util.cpp \
     main.cpp \
-    string_util/split_tests.cpp \
-    string_util/url_encode_decode.cpp \
-    string_util/to_lower.cpp \
-    string_util/starts_ends_with.cpp
+    tests/split_tests.cpp \
+    tests/url_encode_decode.cpp \
+    tests/to_lower.cpp \
+    tests/starts_ends_with.cpp
 
 HEADERS += \
-    ../../include/httpdlib/string_util/string_util.h \
-    test_macros.h
-
-INCLUDEPATH += ../include
+    ../../include/httpdlib/string_util/string_util.h

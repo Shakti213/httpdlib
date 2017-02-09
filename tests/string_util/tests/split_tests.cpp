@@ -31,10 +31,7 @@
 using httpdlib::string_util::split_once;
 using httpdlib::string_util::split_all;
 
-bool tst_string_util_split_once() {
-    bool ok = true;
-
-    START_TEST("tst_string_util_split_once()");
+CREATE_TEST(tst_string_util_split_once) {
     MAKE_TESTVAR(empty_all = split_once("", '.'));
     TEST_TRUE(empty_all.first == "");
     TEST_TRUE(empty_all.second == "");
@@ -64,11 +61,9 @@ bool tst_string_util_split_once() {
     TEST_TRUE(double_separator_middle.second == ";def");
 
     END_TEST();
-    return ok;
 }
 
-bool tst_string_util_split_all() {
-    START_TEST("tst_string_util_split_all()");
+CREATE_TEST(tst_string_util_split_all) {
 
     MAKE_TESTVAR(empty_all = split_all("", '.'));
     TEST_TRUE(empty_all.size() == 0);
@@ -125,11 +120,4 @@ bool tst_string_util_split_all() {
     TEST_TRUE(double_separator_middle_no_empty[1] == "def");
 
     END_TEST();
-}
-
-bool tst_string_util_split() {
-    auto split_once = tst_string_util_split_once();
-    auto split_all = tst_string_util_split_all();
-
-    return split_once && split_all;
 }

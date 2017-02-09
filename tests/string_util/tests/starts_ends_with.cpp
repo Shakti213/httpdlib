@@ -27,9 +27,8 @@
 
 #include <iostream>
 
-bool tst_starts_with() {
+CREATE_TEST(tst_starts_with) {
     using httpdlib::string_util::starts_with;
-    START_TEST("tst_starts_with()");
 
     MAKE_TESTVAR(should_succeed = starts_with("abc defgh", "abc de"));
     TEST_TRUE(should_succeed == true);
@@ -49,9 +48,8 @@ bool tst_starts_with() {
     END_TEST();
 }
 
-bool tst_ends_with() {
+CREATE_TEST(tst_ends_with) {
     using httpdlib::string_util::ends_with;
-    START_TEST("tst_ends_with()");
 
     MAKE_TESTVAR(should_succeed = ends_with("abc defgh", " defgh"));
     TEST_TRUE(should_succeed == true);

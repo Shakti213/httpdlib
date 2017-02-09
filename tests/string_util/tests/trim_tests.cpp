@@ -27,11 +27,9 @@
 #include <cctype>
 #include <iostream>
 
-bool tst_string_util_trim_start() {
+CREATE_TEST(tst_string_util_trim_start) {
 
     using httpdlib::string_util::trim_start;
-
-    START_TEST("tst_string_util_trim_start()");
 
     std::string expect_unmodified[] = {"",
                                        "abc",
@@ -60,7 +58,10 @@ bool tst_string_util_trim_start() {
         if (trim_start(s) != s) {
             std::cerr << "expected_unmodified[" << i << "] "
                       << " FAILURE" << std::endl;
-            return false;
+            TEST_FAIL();
+        }
+        else {
+            TEST_SUCCESS();
         }
     }
 
@@ -94,7 +95,6 @@ bool tst_string_util_trim_start() {
                 std::cerr << "Fuzzy testing failed with string \"" << to_shuffle
                           << "\"" << std::endl;
                 fuzzy_testing_ok = false;
-                return false;
             }
         }
     }
@@ -103,11 +103,10 @@ bool tst_string_util_trim_start() {
     END_TEST();
 }
 
-bool tst_string_util_trim_end() {
+CREATE_TEST(tst_string_util_trim_end) {
 
     using httpdlib::string_util::trim_end;
 
-    START_TEST("tst_string_util_trim_end()");
     std::string expect_unmodified[] = {"",
                                        "abc",
                                        " abc",
@@ -136,7 +135,10 @@ bool tst_string_util_trim_end() {
             std::cerr << "expected_unmodified[" << i << "] "
                       << " FAILURE" << std::endl;
 
-            return false;
+            TEST_FAIL();
+        }
+        else {
+            TEST_SUCCESS();
         }
 
         i++;
@@ -171,7 +173,7 @@ bool tst_string_util_trim_end() {
             if (trimmed != to_shuffle) {
                 std::cout << "Fuzzy testing failed with string \"" << to_shuffle
                           << "\"" << std::endl;
-                return false;
+                fuzzy_testing_ok = false;
             }
         }
     }
@@ -180,11 +182,9 @@ bool tst_string_util_trim_end() {
     END_TEST();
 }
 
-bool tst_string_util_trim_both() {
+CREATE_TEST(tst_string_util_trim_both) {
 
     using httpdlib::string_util::trim_both;
-
-    START_TEST("tst_string_util_trim_both()");
 
     std::string expect_unmodified[] = {"",        "abc",      "a bc", "a\rbc",
                                        "a\nb}tc", "a \r\nbc", "abcd", "ab\rcd",
@@ -202,7 +202,10 @@ bool tst_string_util_trim_both() {
         if (trim_both(s) != s) {
             std::cerr << "expected_unmodified[" << i << "] "
                       << " FAILURE" << std::endl;
-            return false;
+            TEST_FAIL();
+        }
+        else {
+            TEST_SUCCESS();
         }
 
         i++;
@@ -242,19 +245,11 @@ bool tst_string_util_trim_both() {
             if (trimmed != to_shuffle) {
                 std::cerr << "Fuzzy testing failed with string \"" << to_shuffle
                           << "\"" << std::endl;
-                return false;
+                fuzzy_testing_ok = false;
             }
         }
     }
     TEST_TRUE(fuzzy_testing_ok);
 
     END_TEST();
-}
-
-bool tst_string_util_trim() {
-    auto trim_start_result = tst_string_util_trim_start();
-    auto trim_end_result = tst_string_util_trim_end();
-    auto trim_both_result = tst_string_util_trim_both();
-
-    return trim_start_result && trim_end_result && trim_both_result;
 }

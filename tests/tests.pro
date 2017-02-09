@@ -1,7 +1,11 @@
 TEMPLATE = subdirs
 
 SUBDIRS = \
-    string_util
+    string_util \
+    request \
+    header_collection
+
+HEADERS += common/test_macros.h
 
 CONFIG-=release
 CONFIG+=debug

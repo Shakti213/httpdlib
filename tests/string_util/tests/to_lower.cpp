@@ -28,9 +28,8 @@
 #include <algorithm>
 #include <iostream>
 
-bool tst_to_lower() {
+CREATE_TEST(tst_to_lower) {
     using httpdlib::string_util::to_lower;
-    START_TEST("tst_to_lower()");
 
     MAKE_TESTVAR(lowers_only = to_lower("abcdefghijklmnopqrstuvwxyz"));
     TEST_TRUE(lowers_only == "abcdefghijklmnopqrstuvwxyz");

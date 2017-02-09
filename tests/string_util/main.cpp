@@ -21,22 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "test_macros.h"
 #include <iostream>
 
-bool tst_string_util_trim();
-bool tst_string_util_split();
-bool tst_url_encode();
-bool tst_url_decode();
+DECLARE_TEST(tst_string_util_trim_start);
+DECLARE_TEST(tst_string_util_trim_end);
+DECLARE_TEST(tst_string_util_trim_both);
+DECLARE_TEST(tst_string_util_split_once);
+DECLARE_TEST(tst_string_util_split_all);
+DECLARE_TEST(tst_url_encode);
+DECLARE_TEST(tst_url_decode);
 
-bool tst_to_lower();
-
-bool tst_starts_with();
-bool tst_ends_with();
+DECLARE_TEST(tst_to_lower);
+DECLARE_TEST(tst_starts_with);
+DECLARE_TEST(tst_ends_with);
 
 int main() {
-    bool all_ok = tst_string_util_split() && tst_string_util_trim() &&
-                  tst_url_encode() && tst_url_decode() && tst_to_lower() &&
-                  tst_starts_with() && tst_ends_with();
-
-    return all_ok ? 0 : -1;
+    BEGIN_TEST_SEQUENCE(){tst_string_util_trim_start,
+                          tst_string_util_trim_end,
+                          tst_string_util_trim_both,
+                          tst_string_util_split_once,
+                          tst_string_util_split_all,
+                          tst_url_encode,
+                          tst_url_decode,
+                          tst_to_lower,
+                          tst_starts_with,
+                          tst_ends_with};
+    RUN_TESTS();
 }

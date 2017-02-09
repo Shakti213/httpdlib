@@ -28,9 +28,8 @@
 #include <algorithm>
 #include <iostream>
 
-bool tst_url_encode() {
+CREATE_TEST(tst_url_encode) {
     using httpdlib::string_util::url_encode;
-    START_TEST("tst_url_encode()");
 
     MAKE_TESTVAR(must_not_be_modified_upper =
                      url_encode("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
@@ -63,11 +62,9 @@ bool tst_url_encode() {
     END_TEST();
 }
 
-bool tst_url_decode() {
+CREATE_TEST(tst_url_decode) {
 
     using httpdlib::string_util::url_decode;
-
-    START_TEST("tst_url_decode()");
 
     bool decode_ok;
 
