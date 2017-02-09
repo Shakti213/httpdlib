@@ -121,7 +121,7 @@ std::string request::allowed_methods_string() const {
 }
 
 request::operator bool() const {
-    return m_parse_result == Finished;
+    return finished();
 }
 
 const std::vector<std::string> &request::allowed_methods() const {
@@ -576,6 +576,10 @@ request &request::operator<<(const char *str) {
 
 bool request::error() const {
     return (m_parse_result != NotFinished) && (m_parse_result != Finished);
+}
+
+bool request::finished() const {
+    return m_parse_result == Finished;
 }
 
 request &request::operator<<(char c) {

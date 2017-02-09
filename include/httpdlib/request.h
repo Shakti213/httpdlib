@@ -235,6 +235,11 @@ public:
      */
     bool error() const;
     /**
+     * @brief Checks if the request is finished and ready to be handled.
+     * @return  True if finished, otherwise false.
+     */
+    bool finished() const;
+    /**
      * @brief Gets the parse result.
      * @return NotFinished if more data is needed, Finished if a request is
      * completed, any other value means a parse error occurred.
