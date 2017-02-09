@@ -44,6 +44,7 @@ private:
 
 public:
     bool contains(const std::string &name) const;
+    std::size_t size() const;
     std::string value(const std::string &name) const;
     void parse(const std::string &str);
     void add(const std::string &key, const std::string &value);

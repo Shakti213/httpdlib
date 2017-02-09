@@ -23,12 +23,17 @@
  */
 #include "httpdlib/header_collection.h"
 #include "httpdlib/string_util/string_util.h"
+#include <algorithm>
 #include <numeric>
 
 namespace httpdlib
 {
 
 using namespace string_util;
+
+std::size_t header_collection::size() const {
+    return m_headers.size();
+}
 
 bool header_collection::contains(const std::string &name) const {
     auto header = m_headers.find(to_lower(name));
