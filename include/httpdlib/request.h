@@ -182,7 +182,10 @@ public:
      */
     query_values_t &query_values();
     const query_values_t &query_values() const;
-
+    /**
+     * @brief   Gets the fragment string of the request
+     * @return  The fragment string (empty if not available)
+     */
     const std::string &fragment() const;
 
     /**
@@ -248,6 +251,10 @@ public:
      */
     explicit operator bool() const;
 
+    /**
+     * @brief Returns a string with all the allowed methods.
+     * @return A comma-separated string with all allowed methods.
+     */
     std::string allowed_methods_string() const;
 
     /**
