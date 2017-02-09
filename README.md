@@ -1,4 +1,5 @@
 # httpdlib
+[![build status](https://gitlab.com/Shakti213/httpdlib/badges/master/build.svg "Build status")](https://gitlab.com/Shakti213/httpdlib/commits/master)
 
 ## What is it?
 httpdlib is a simple way to read HTTP/1.1 requests and generate and send
