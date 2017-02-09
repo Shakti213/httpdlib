@@ -334,29 +334,25 @@ const std::string &request::fragment() const {
     return m_fragment;
 }
 
-bool request::error() const {
-    return (m_parse_result != NotFinished) && (m_parse_result != Finished);
-}
-
-request &request::operator<<(char c) {
+void request::add_data(char data) {
     if (m_state >= WaitingMethodStart && m_state < WaitingData) {
-        if (c <= 0) {
+        if (data <= 0) {
             m_state = ResetRequired;
             m_parse_result = BadRequest;
         }
     }
     switch (m_state) {
     case WaitingMethodStart:
-        if (c >= 'A' && c <= 'Z') {
+        if (data >= 'A' && data <= 'Z') {
             // Always reset at the start of a new cycle
             reset();
-            m_method = c;
+            m_method = data;
             m_state = CollectingMethod;
         }
         break;
 
     case CollectingMethod:
-        if (c == ' ') {
+        if (data == ' ') {
             if (std::find(m_allowed_methods.begin(), m_allowed_methods.end(),
                           m_method) == m_allowed_methods.end()) {
                 m_state = ResetRequired;
@@ -370,7 +366,7 @@ request &request::operator<<(char c) {
             }
         }
         else {
-            m_method += c;
+            m_method += data;
             auto max_allowed_method =
                 std::max_element(std::begin(m_allowed_methods),
                                  std::end(m_allowed_methods),
@@ -387,14 +383,14 @@ request &request::operator<<(char c) {
         break;
 
     case WaitingUriStart:
-        if (c != ' ') {
+        if (data != ' ') {
             m_state = CollectingUri;
-            m_request_collector = c;
+            m_request_collector = data;
         }
         break;
 
     case CollectingUri:
-        if (c == '?' || c == '#' || c == ' ') {
+        if (data == '?' || data == '#' || data == ' ') {
             bool uri_ok = true;
             m_uri = url_decode(m_request_collector, uri_ok);
             m_request_collector = "";
@@ -403,10 +399,10 @@ request &request::operator<<(char c) {
                 m_state = ResetRequired;
                 m_parse_result = BadRequest;
             }
-            else if (c == '?') {
+            else if (data == '?') {
                 m_state = CollectingQuery;
             }
-            else if (c == '#') {
+            else if (data == '#') {
                 m_state = CollectingFragment;
             }
             else {
@@ -414,7 +410,7 @@ request &request::operator<<(char c) {
             }
         }
         else {
-            m_request_collector += c;
+            m_request_collector += data;
             if (m_request_collector.size() > m_max_uri) {
                 m_state = ResetRequired;
                 m_parse_result = UriTooLong;
@@ -423,14 +419,14 @@ request &request::operator<<(char c) {
         break;
 
     case CollectingQuery:
-        if (c == '#' || c == ' ') {
+        if (data == '#' || data == ' ') {
             log(1, "Query string received: " + m_request_collector);
             m_query_string_values = parse_query_string(m_request_collector);
             m_request_collector = "";
             for (auto c : m_query_string_values) {
                 log(3, "\t\"" + c.first + "\" = \"" + c.second + "\"");
             }
-            if (c == '#') {
+            if (data == '#') {
                 m_state = CollectingFragment;
             }
             else {
@@ -438,7 +434,7 @@ request &request::operator<<(char c) {
             }
         }
         else {
-            m_request_collector += c;
+            m_request_collector += data;
             m_query_string_length++;
             if (m_request_collector.size() + m_uri.size() > m_max_uri) {
                 m_state = ResetRequired;
@@ -448,13 +444,13 @@ request &request::operator<<(char c) {
         break;
 
     case CollectingFragment:
-        if (c == ' ') {
+        if (data == ' ') {
             m_state = WaitingVersionStart;
             m_fragment = m_request_collector;
             m_request_collector = "";
         }
         else {
-            m_request_collector += c;
+            m_request_collector += data;
             if (m_request_collector.size() + m_uri.size() +
                     m_query_string_length >
                 m_max_uri) {
@@ -465,14 +461,14 @@ request &request::operator<<(char c) {
         break;
 
     case WaitingVersionStart:
-        if (c != ' ') {
-            m_request_collector = c;
+        if (data != ' ') {
+            m_request_collector = data;
             m_state = CollectingVersion;
         }
         break;
 
     case CollectingVersion:
-        if (c == '\r') {
+        if (data == '\r') {
             m_state = WaitingHeader;
             std::regex version_regex("HTTP/(\\d+)\\.(\\d+)");
             std::smatch matches;
@@ -497,20 +493,20 @@ request &request::operator<<(char c) {
                 valid_version = false;
             }
             if (valid_version) {
-                m_request_collector = c;
+                m_request_collector = data;
             }
             else {
                 m_state = WaitingMethodStart;
-                m_request_collector = c;
+                m_request_collector = data;
             }
         }
         else {
-            m_request_collector += c;
+            m_request_collector += data;
         }
         break;
 
     case WaitingHeader:
-        m_request_collector += c;
+        m_request_collector += data;
         if (ends_with(m_request_collector, "\r\n\r\n")) {
             log(1, "Ending WaitingHeader...");
             m_headers.parse(m_request_collector);
@@ -549,7 +545,7 @@ request &request::operator<<(char c) {
         break;
 
     case WaitingData:
-        m_request_data.push_back(c);
+        m_request_data.push_back(data);
         if (m_request_data.size() == m_request_data_to_read) {
             log(3, "Finished receiving data. Received " +
                        std::to_string(m_request_data.size()) + " bytes");
@@ -562,7 +558,28 @@ request &request::operator<<(char c) {
         // Some error. Must manually reset, does nothing!
         break;
     }
+}
 
+void request::add_data(const char *data, size_t length) {
+    for (std::size_t i = 0; i < length; i++) {
+        *this << data[i];
+    }
+}
+
+request &request::operator<<(const char *str) {
+    for (const char *p = str; *p; p++) {
+        *this << *p;
+    }
+
+    return *this;
+}
+
+bool request::error() const {
+    return (m_parse_result != NotFinished) && (m_parse_result != Finished);
+}
+
+request &request::operator<<(char c) {
+    add_data(c);
     return *this;
 }
 

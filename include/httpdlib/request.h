@@ -189,28 +189,23 @@ public:
     const std::string &fragment() const;
 
     /**
+     * @brief Add a single byte of data to the request
+     * @param data The data byte to add
+     */
+    void add_data(char data);
+    /**
      * @brief Add a buffer of data with explicit length.
      * @param data The data to add.
      * @param length Length of the data to be added.
      */
-    void add_data(const char *data, std::size_t length) {
-        for (std::size_t i = 0; i < length; i++) {
-            *this << data[i];
-        }
-    }
+    void add_data(const char *data, std::size_t length);
 
     /**
      * @brief Adds data from a null-terminated string of data
      * @param str The null-terminated string to add.
      * @return *this.
      */
-    request &operator<<(const char *str) {
-        for (const char *p = str; *p; p++) {
-            *this << *p;
-        }
-
-        return *this;
-    }
+    request &operator<<(const char *str);
 
     /**
      * @brief Adds data from a container.
