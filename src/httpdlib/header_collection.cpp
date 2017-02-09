@@ -30,8 +30,8 @@ namespace httpdlib
 
 using namespace string_util;
 
-bool header_collection::has_header(std::string name) {
-    auto header = m_headers.find(to_lower(std::move(name)));
+bool header_collection::contains(const std::string &name) const {
+    auto header = m_headers.find(to_lower(name));
     return header != m_headers.end();
 }
 

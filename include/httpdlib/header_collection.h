@@ -43,7 +43,7 @@ private:
     storage_t m_headers;
 
 public:
-    bool has_header(std::string name);
+    bool contains(const std::string &name) const;
     std::string value(std::string name) const;
     void parse(std::string str);
     void add(std::string key, std::string value);

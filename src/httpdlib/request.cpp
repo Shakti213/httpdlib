@@ -311,7 +311,7 @@ size_t request::content_length() const {
 }
 
 bool request::has_header(std::string header_name) {
-    return m_headers.has_header(std::move(header_name));
+    return m_headers.contains(header_name);
 }
 
 std::string request::header_value(std::string header_name) {
