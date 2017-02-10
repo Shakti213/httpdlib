@@ -59,34 +59,12 @@ namespace httpdlib
 namespace util
 {
 
-/**
- * @brief Provides ability to register new file types to the built-in list
- * @param File ending, including the leading dot (".css" for instance).
- * @param The content type that should be associated ("text/html" for instance).
- */
 void content_type_register(const std::string &file_ending,
                            const std::string &content_type) {
     if (file_ending.size() > 0) {
         builtin_types[file_ending] = content_type;
     }
 }
-
-/**
- * @brief Retrieves the content type header to use for a certain file type
- * @param The type of file (eg ".png" for png which will return "image/png".
- * @return Content type for a certain file
- *
- * By default a small built-in list is used to generate the content type
- * but it is possible to use some platform dependant way to get the content
- * type.
- * For instance Windows has a builtin database that can be queried.
- *
- * To enable platform-specific support USE_PLATFORM_CONTENT_TYPES must be
- * defined
- * at build-time. Otherwise "application/octet-stream" will be returned for
- * unknown
- * file-types.
- */
 std::string content_type_from_file_type(const std::string &type) {
     auto builtin_candidate = builtin_types.find(type);
     if (builtin_candidate != builtin_types.end()) {
