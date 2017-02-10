@@ -25,6 +25,7 @@
 #define STREAM_RESPONSE_H
 
 #include "httpdlib/interface/response.h"
+#include <array>
 #include <istream>
 #include <memory>
 
@@ -34,10 +35,13 @@ namespace httpdlib
 class stream_response : public interface::response
 {
     std::unique_ptr<std::istream> m_stream;
-    char m_buffer[150000];
+    // 128kB buffer
+    std::array<char, 131072> m_buffer;
     std::size_t m_buffer_offset;
     std::size_t m_buffer_length;
     std::size_t m_size;
+
+    void read_next_into_buffer();
 
 public:
     stream_response(std::unique_ptr<std::istream> stream);
