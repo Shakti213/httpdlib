@@ -129,11 +129,10 @@ class with at least one pure virtual function. Thus it can not be instantiated
 directly but it does provides a couple of helper functions for any derived
 classes.
 
-Any derived class must implement at least these three methods:
+Any derived class must implement at least these two methods:
 ``` c++
 virtual void response::prepare_write() = 0;
 virtual std::size_t response::write_payload_part(writer_t writer, std::size_t offset) = 0;
-virtual bool payload_done(std::size_t payload_bytes_written) const = 0;
 ```
 
 `prepare_write()` is called by the default `response::write_next(writer_t)`
@@ -142,8 +141,6 @@ setting of any headers based on content etc. can be made here.
 `write_payload_part(writer_t writer, std::size_t offset)` It can be called
 multiple times by the default write_next implementation. The offset is the
 number of payload bytes that has been written up until now.
-`payload_done(std::size_t payload_bytes_written) const` is used to determine if
-the complete payload has been written or not.
 
 `writer_t is a typedef inside the request class that looks like this: typedef
 `std::function<std::size_t(const char*, std::size_t)> writer_t. So writer_t is a
