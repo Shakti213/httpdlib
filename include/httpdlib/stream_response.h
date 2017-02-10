@@ -47,7 +47,6 @@ public:
 protected:
     void prepare_write() override;
     size_t write_payload_part(writer_t writer, size_t offset) override;
-    bool payload_done(size_t payload_bytes_written) const override;
 };
 
 } // namespace httpdlib

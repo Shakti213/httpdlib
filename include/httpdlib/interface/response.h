@@ -48,6 +48,7 @@ protected:
     enum write_next_state { state_write_headers, state_write_payload };
 
     write_next_state m_state = state_write_headers;
+    std::size_t m_expected_payload_size = 0;
     std::size_t m_write_next_offset = 0;
     std::string m_serialized_status_and_headers;
 
@@ -112,11 +113,16 @@ protected:
      * @brief Checks if the entire payload is written or not.
      * @param The number of payload bytes written.
      * @return  True if all bytes are written. Otherwise false.
+     *
+     * Default implementation simply checks the payload_bytes_written
+     * with m_expected_payload_size
      */
-    virtual bool payload_done(std::size_t payload_bytes_written) const = 0;
+    virtual bool payload_done(std::size_t payload_bytes_written) const;
     /**
      * @brief Convenience function that sets either code 200 or 204.
      * @param content_length If content_length == 0 this will set code 204.
+     *
+     * This will also set m_expected_payload_size to content_length.
      */
     void maybe_set_code204_or_content_length(std::size_t content_length);
     /**

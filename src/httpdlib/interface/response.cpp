@@ -181,6 +181,10 @@ std::string response::code_to_reason(int code) {
     return retval;
 }
 
+bool response::payload_done(size_t payload_bytes_written) const {
+    return payload_bytes_written >= m_expected_payload_size;
+}
+
 void response::maybe_set_code204_or_content_length(size_t content_length) {
     if (m_code == 200 && content_length == 0) {
         m_code = 204;
@@ -189,6 +193,8 @@ void response::maybe_set_code204_or_content_length(size_t content_length) {
     else {
         m_headers.add("content-length", std::to_string(content_length));
     }
+
+    m_expected_payload_size = content_length;
 }
 
 void response::set_header(const std::string &header, const std::string &value) {

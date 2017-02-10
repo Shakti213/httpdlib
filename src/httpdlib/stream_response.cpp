@@ -70,8 +70,4 @@ size_t stream_response::write_payload_part(writer_t writer, size_t) {
     return bytes_written;
 }
 
-bool stream_response::payload_done(size_t payload_bytes_written) const {
-    return payload_bytes_written >= m_size;
-}
-
 } // namespace httpdlib

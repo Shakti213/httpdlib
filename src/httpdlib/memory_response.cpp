@@ -75,8 +75,4 @@ size_t memory_response::write_payload_part(interface::response::writer_t writer,
                                            size_t offset) {
     return write_bytes(m_data.data() + offset, m_data.size() - offset, writer);
 }
-
-bool memory_response::payload_done(std::size_t payload_bytes_written) const {
-    return payload_bytes_written >= m_data.size();
-}
 }
