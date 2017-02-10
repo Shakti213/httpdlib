@@ -91,8 +91,6 @@ filesystem_response_generator::get_response(const request &req) {
                 memory_response::default_for_code(codes::not_found)));
         }
         else {
-            /*memory_response *resp = new memory_response(codes::ok);
-            resp->set_data(read_all(file));*/
             std::ifstream *file_in = new std::ifstream(
                 file, std::ios_base::in | std::ios_base::binary);
             stream_response *resp = new stream_response(file_in);
