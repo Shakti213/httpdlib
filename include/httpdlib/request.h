@@ -85,6 +85,7 @@ private:
     header_collection m_headers;
 
     std::size_t m_request_data_to_read;
+    std::size_t m_request_data_read;
     std::vector<char> m_request_data;
 
     ParseResult m_parse_result;
@@ -293,6 +294,35 @@ public:
      * @param The new log level
      */
     void set_log_level(int log_level);
+    /**
+     * @brief Gets the total number of request data bytes read
+     * @return Total size of request data read.
+     *
+     * This may not equal request_data_size(). If the user has cleared
+     * the request data buffer by calling clear_request_data(), and the buffer
+     * held at least one byte, then this will be greater than
+     * request_data_read(). The request is not done until request_data_read()
+     * returns the same value as content_length()
+     */
+    std::size_t request_data_read() const;
+    /**
+     * @brief Gets the number of data bytes read from the request.
+     * @return Number of data bytes.
+     *
+     * This is the number of bytes received after the request line and the
+     * headers.
+     */
+    std::size_t request_data_size() const;
+    /**
+     * @brief Clears all request data received.
+     */
+    void clear_request_data();
+    /**
+     * @brief Gets the actual request data.
+     * @return Vector of char containing the request data received.
+     */
+    std::vector<char> &request_data();
+    const std::vector<char> &request_data() const;
 };
 }
 

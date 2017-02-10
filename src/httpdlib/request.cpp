@@ -207,6 +207,26 @@ void request::set_log_level(int log_level) {
     m_log_level = log_level;
 }
 
+size_t request::request_data_read() const {
+    return m_request_data_read;
+}
+
+size_t request::request_data_size() const {
+    return m_request_data.size();
+}
+
+void request::clear_request_data() {
+    m_request_data.clear();
+}
+
+std::vector<char> &request::request_data() {
+    return m_request_data;
+}
+
+const std::vector<char> &request::request_data() const {
+    return m_request_data;
+}
+
 bool request::accepts_media_type(const std::string &media_type) {
     std::string accept_header = header_value("accept");
     if (accept_header.length() == 0) {
@@ -286,6 +306,7 @@ void request::reset() {
     m_state = WaitingMethodStart;
     m_uri = "";
     m_request_data_to_read = 0;
+    m_request_data_read = 0;
     m_request_data.clear();
     m_parse_result = NotFinished;
     m_query_string_length = 0;
@@ -516,6 +537,7 @@ void request::add_data(char data) {
 
             m_request_data_to_read = content_length();
             if (m_request_data_to_read != 0) {
+                m_request_data_read = 0;
                 m_state = WaitingData;
                 log(3, "Waiting data: " +
                            std::to_string(m_request_data_to_read) + " bytes");
@@ -543,10 +565,11 @@ void request::add_data(char data) {
         break;
 
     case WaitingData:
+        m_request_data_read++;
         m_request_data.push_back(data);
-        if (m_request_data.size() == m_request_data_to_read) {
+        if (m_request_data_read == m_request_data_to_read) {
             log(3, "Finished receiving data. Received " +
-                       std::to_string(m_request_data.size()) + " bytes");
+                       std::to_string(m_request_data_read) + " bytes");
             m_state = ResetRequired;
             m_parse_result = Finished;
         }
