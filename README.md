@@ -88,7 +88,7 @@ char recv_buffer[max_recv_count];
 // ... lots of other code
 auto num_bytes_received = read_from_socket(socket, recv_buffer, max_recv_count);
 req.add_data(recv_buffer, num_bytes_received);
-// Or a Qt example where socket is a QTcpSocket*''
+// Or a Qt example where socket is a QTcpSocket*
 QByteArray data = socket->readAll();
 req << data;
 ```
