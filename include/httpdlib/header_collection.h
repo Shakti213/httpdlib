@@ -72,6 +72,15 @@ public:
      */
     std::string value(const std::string &key) const;
     /**
+     * @brief Operator so header_collection can be used like a map
+     * @param key Header key to look for
+     * @return Value of the header key.
+     *
+     * This can only be used to retrieve values, can not set header values
+     * this way. Use add for that.
+     */
+    std::string operator[](const std::string &key);
+    /**
      * @brief parse Parses one or multiple lines and adds the key value pairs.
      * @param str   The string to parse. Can be single or multi-line
      */

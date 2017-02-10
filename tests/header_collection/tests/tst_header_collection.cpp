@@ -12,18 +12,22 @@ CREATE_TEST(tst_header_collection_parse) {
     TEST_TRUE(parse_single.size() == 1);
     TEST_TRUE(parse_single.contains("hello"));
     TEST_TRUE(parse_single.value("hello") == "test");
+    TEST_TRUE(parse_single["hello"] == "test");
 
     MAKE_TESTVAR(parse_consecutive = header_collection());
     parse_consecutive.parse("hello: test");
     TEST_TRUE(parse_consecutive.size() == 1);
     TEST_TRUE(parse_consecutive.contains("hello"));
     TEST_TRUE(parse_consecutive.value("hello") == "test");
+    TEST_TRUE(parse_consecutive["hello"] == "test");
     parse_consecutive.parse("hello2: test2");
     TEST_TRUE(parse_consecutive.size() == 2);
     TEST_TRUE(parse_consecutive.contains("hello"));
     TEST_TRUE(parse_consecutive.value("hello") == "test");
+    TEST_TRUE(parse_consecutive["hello"] == "test");
     TEST_TRUE(parse_consecutive.contains("hello2"));
     TEST_TRUE(parse_consecutive.value("hello2") == "test2");
+    TEST_TRUE(parse_consecutive["hello2"] == "test2");
 
     MAKE_TESTVAR(parse_empty_value = header_collection());
     parse_empty_value.parse("hello:");

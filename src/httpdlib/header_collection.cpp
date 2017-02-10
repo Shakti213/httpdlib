@@ -49,6 +49,10 @@ std::string header_collection::value(const std::string &key) const {
     return "";
 }
 
+std::string header_collection::operator[](const std::string &key) {
+    return value(key);
+}
+
 void header_collection::add(const std::string &key, const std::string &value) {
     m_headers[to_lower(key)] = value;
 }
