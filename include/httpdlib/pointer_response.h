@@ -46,11 +46,8 @@ public:
 
     void set_pointer(const char *pointer, std::size_t length);
 
-    // response interface
 protected:
     void prepare_write() override;
-    // response interface
-protected:
     size_t write_payload_part(writer_t writer, size_t offset) override;
 };
 
