@@ -15,13 +15,32 @@ or single/multithreading or any such decisions one might want to make. It
 provides easy capability of parsing HTTP requests and generating HTTP responses.
 The transportation of these requests and responses is not done by this library.
 
+It is also not completely HTTP standard compliant (at this point at least), so
+expose it to untrusted data at your own peril.
+
 ## Licensing
 The main library and code (everything inside include and src, as well as tests)
 is available under the MIT license. Examples are available with different
 licenses depending on any third-party libraries. See the LICENSE file in each
 example (if available) for further details.
 
-## Structure
+
+## Usage
+The is meant to be embedded at the source level. Support for building a library
+as such is not available and cannot be built with the current version.
+
+It only uses standard C++ though, so embedding should not be a problem as long
+as the appropriate compiler version is available. Test builds are done using
+Visual Studio 2015 (Windows) and GCC 5.2 (Linux Ubuntu 16.04). Some experimental
+features, such as the std::experimental::filesystem namespace can be enabled
+as well, see the httpdlib.pro file for defines that enables these features.
+
+Everything available by httpdlib is wrapped inside the httpdlib namespace, or a
+sub-namespace to this. Some basic implementations are available that allows you
+start serving files from a directory, or in-memory content immediately, but for
+more advanced use cases the library is very easy to build on.
+
+### Structure
 The file and folder structure is rather easy to understand. The
 *include/httpdlib* folder is the root include folder, and everything in this
 folder is part of the public API. Everything in this folder is available in the
@@ -42,13 +61,6 @@ available. For example on windows *src/httpdlib/util/content_type.cpp* uses
 implementations available in *src/httpdlib/util/platform/win32_content_type.cpp*.
 Inside *src/httpdlib/util/platform* a header called *content_type.h* is located
 which declares all the platform specific functions available.
-
-
-## Usage
-Everything available by httpdlib is wrapped inside the httpdlib namespace, or a
-sub-namespace to this. Some basic implementations are available that allows you
-start serving files from a directory, or in-memory content immediately, but for
-more advanced use cases the library is very easy to build on.
 
 ### Requests
 Requests are parsed using the httpdlib::request class, and the usage is pretty
