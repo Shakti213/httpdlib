@@ -69,18 +69,30 @@ WebServer::WebServer(QObject *parent) : QObject(parent) {
 
     m_tcp_server = new QTcpServer(this);
 
+    connect(this, &WebServer::closeSocket, this, &WebServer::onCloseSocket,
+            Qt::QueuedConnection);
+
     connect(m_tcp_server, &QTcpServer::newConnection, this,
             &WebServer::onNewConnection);
 
     if (m_tcp_server->listen(QHostAddress::Any, 8088)) {
         qDebug() << "Listening on " << m_tcp_server->serverPort();
     }
+
+    m_second_timer.setInterval(1000);
+    m_second_timer.setSingleShot(false);
+    connect(&m_second_timer, &QTimer::timeout, this,
+            &WebServer::onSecondTimeout);
+
+    m_second_timer.start();
 }
 
 void WebServer::onNewConnection() {
     qDebug() << "New connection";
     QTcpSocket *socket = m_tcp_server->nextPendingConnection();
     m_request_data[socket].reset();
+
+    socket->setProperty("timeout", 5);
 
     connect(socket, &QTcpSocket::disconnected, this,
             &WebServer::onDisconnected);
@@ -91,6 +103,7 @@ void WebServer::onNewConnection() {
 
 void WebServer::onReadyRead() {
     auto *socket = qobject_cast<QTcpSocket *>(sender());
+    socket->setProperty("timeout", 5);
     auto &request = m_request_data[socket];
     auto allData = socket->readAll();
     qDebug() << "Received data \"" << allData << "\"";
@@ -100,7 +113,6 @@ void WebServer::onReadyRead() {
         auto writer = [&socket](const char *data, std::size_t length) {
             qDebug() << "Writing " << length << " bytes";
             qint64 retval = socket->write(data, length);
-            // socket->flush();
             if (retval <= 0) {
                 if (retval < 0) {
                     qDebug() << "SOCKET ERROR: " << socket->error();
@@ -122,6 +134,7 @@ void WebServer::onReadyRead() {
 
 void WebServer::onBytesWritten(qint64) {
     auto *socket = qobject_cast<QTcpSocket *>(sender());
+    socket->setProperty("timeout", 5);
     auto &response = m_responses[socket];
     if (!response->done()) {
         auto writer = [&socket](const char *data, std::size_t length) {
@@ -152,4 +165,23 @@ void WebServer::onDisconnected() {
     m_responses.erase(socket);
     m_request_data.erase(socket);
     socket->deleteLater();
+}
+
+void WebServer::onSecondTimeout() {
+    for (auto &c : m_request_data) {
+        auto timeout = c.first->property("timeout").toInt();
+        timeout--;
+        c.first->setProperty("timeout", timeout);
+        if (timeout <= 0) {
+            // Emit a signal so the actual closing is
+            // done in the event loop to make sure
+            // the map isn't modified in onDisconnected() unexpectedly
+            qDebug() << "Connection timeout...";
+            emit closeSocket(c.first);
+        }
+    }
+}
+
+void WebServer::onCloseSocket(QTcpSocket *socket) {
+    socket->close();
 }

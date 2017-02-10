@@ -23,6 +23,7 @@
 #include "httpdlib/request.h"
 #include <QObject>
 #include <QTcpServer>
+#include <QTimer>
 #include <map>
 #include <memory>
 
@@ -35,14 +36,21 @@ class WebServer : public QObject
     std::map<QTcpSocket *, std::unique_ptr<httpdlib::interface::response>>
         m_responses;
 
+    QTimer m_second_timer;
+
 public:
     WebServer(QObject *parent = nullptr);
+
+signals:
+    void closeSocket(QTcpSocket *socket);
 
 public slots:
     void onNewConnection();
     void onReadyRead();
     void onBytesWritten(qint64);
     void onDisconnected();
+    void onSecondTimeout();
+    void onCloseSocket(QTcpSocket *socket);
 };
 
 #endif // WEBSERVER_H
