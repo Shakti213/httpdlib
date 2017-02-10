@@ -69,6 +69,11 @@ filesystem_response_generator::filesystem_response_generator(
     : m_directory(directory) {
 }
 
+filesystem_response_generator::filesystem_response_generator(
+    std::string &&directory)
+    : m_directory(directory) {
+}
+
 std::unique_ptr<interface::response>
 filesystem_response_generator::get_response(const request &req) {
     std::unique_ptr<interface::response> retval(nullptr);

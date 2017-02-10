@@ -53,6 +53,7 @@ class filesystem_response_generator : public interface::response_generator
 
 public:
     filesystem_response_generator(const std::string &directory);
+    filesystem_response_generator(std::string &&directory);
 
     // response_generator interface
 public:
