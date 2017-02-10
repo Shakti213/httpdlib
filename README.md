@@ -64,7 +64,7 @@ which declares all the platform specific functions available.
 
 ### Requests
 Requests are parsed using the httpdlib::request class, and the usage is pretty
-much the same as when writing data to std::cout:
+much the same as when writing data to std::cout.
 ``` c++
 std::string request_line = "GET / HTTP/1.1\r\n";
 QByteArray qtByteArray = "qt-header: qt-value\r\n";
@@ -80,6 +80,19 @@ for(auto c:loop_demo)
     req << c;
 req.add_data(partial_add, 2);
 ```
+
+Of course this is not the normal use-case, normally you would receive data from
+a socket and add this data to the request instance.
+``` c++
+char recv_buffer[max_recv_count];
+// ... lots of other code
+auto num_bytes_received = read_from_socket(socket, recv_buffer, max_recv_count);
+req.add_data(recv_buffer, num_bytes_received);
+// Or a Qt example where socket is a QTcpSocket*''
+QByteArray data = socket->readAll();
+req << data;
+```
+
 Any container that can be used in a `for(auto element:container)` style loop can
 be used with the stream operator, provided a conversion to the `char` type
 exists.
