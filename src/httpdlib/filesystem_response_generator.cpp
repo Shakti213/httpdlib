@@ -26,9 +26,10 @@
 #include "httpdlib/memory_response.h"
 #include "httpdlib/stream_response.h"
 #include "httpdlib/util/content_type.h"
-#include <experimental/filesystem>
 #include <fstream>
 
+#ifdef USE_EXPERIMENTAL_FS
+#include <experimental/filesystem>
 // Handle different filesystem namespaces
 #ifdef _MSC_VER
 #define fs_namespace std::experimental::filesystem
@@ -45,21 +46,50 @@ std::size_t file_size(const std::string &file_and_path) {
     return static_cast<std::size_t>(fs_namespace::file_size(file_and_path));
 }
 
-std::vector<char> read_all(const std::string &file_and_path) {
-    std::vector<char> retval;
-    auto fsize = file_size(file_and_path);
-    retval.resize(fsize);
-
-    std::ifstream fin(file_and_path, std::ios_base::in | std::ios_base::binary);
-    fin.read(retval.data(), static_cast<std::streamsize>(fsize));
-
-    return retval;
-}
-
 std::string file_type(const std::string &file_and_path) {
     fs_namespace::path p(file_and_path);
     return p.extension().string();
 }
+#else
+bool file_exists(const std::string &file_and_path) {
+    std::ifstream fin(file_and_path);
+    return fin.is_open();
+}
+
+std::size_t file_size(const std::string &file_and_path) {
+    std::ifstream fin(file_and_path);
+    if (fin.is_open()) {
+        fin.seekg(0, fin.end);
+        return static_cast<std::size_t>(fin.tellg());
+    }
+
+    return 0;
+}
+
+std::string file_type(const std::string &file_and_path) {
+    std::string retval;
+    auto dot_position =
+        std::find(file_and_path.rbegin(), file_and_path.rend(), '.');
+    if (dot_position != file_and_path.rend()) {
+        auto extension_size =
+            std::distance(file_and_path.rbegin(), dot_position) + 1;
+        if (extension_size > 0) {
+            retval.resize(static_cast<std::size_t>(extension_size));
+            auto retval_riter = retval.rbegin();
+            std::for_each(file_and_path.rbegin(), dot_position,
+                          [&retval_riter](auto e) {
+                              *retval_riter = e;
+                              retval_riter++;
+                          });
+
+            retval[0] = '.';
+        }
+    }
+
+    return retval;
+}
+
+#endif
 
 namespace httpdlib
 {

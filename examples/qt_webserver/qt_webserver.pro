@@ -7,6 +7,8 @@ TARGET = httpdlib_example_qt_webserver
 CONFIG += console
 CONFIG -= app_bundle
 
+DEFINES += USE_EXPERIMENTAL_FS
+
 TEMPLATE = app
 
 unix: LIBS += -lstdc++fs

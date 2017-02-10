@@ -6,6 +6,8 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+DEFINES += USE_EXPERIMENTAL_FS
+
 unix: LIBS += -lstdc++fs
 
 INCLUDEPATH += ../../include
