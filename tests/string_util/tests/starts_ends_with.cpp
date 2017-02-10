@@ -28,21 +28,21 @@
 #include <iostream>
 
 CREATE_TEST(tst_starts_with) {
-    using httpdlib::string_util::starts_with;
+    using httpdlib::string_util::begins_with;
 
-    MAKE_TESTVAR(should_succeed = starts_with("abc defgh", "abc de"));
+    MAKE_TESTVAR(should_succeed = begins_with("abc defgh", "abc de"));
     TEST_TRUE(should_succeed == true);
 
-    MAKE_TESTVAR(same_twice = starts_with("abc defgh", "abc defgh"));
+    MAKE_TESTVAR(same_twice = begins_with("abc defgh", "abc defgh"));
     TEST_TRUE(same_twice == true);
 
-    MAKE_TESTVAR(should_fail_too_short = starts_with("abc de", "abc def"));
+    MAKE_TESTVAR(should_fail_too_short = begins_with("abc de", "abc def"));
     TEST_TRUE(should_fail_too_short == false);
 
-    MAKE_TESTVAR(should_fail_no_match = starts_with("abc def", "bc def"));
+    MAKE_TESTVAR(should_fail_no_match = begins_with("abc def", "bc def"));
     TEST_TRUE(should_fail_no_match == false);
 
-    MAKE_TESTVAR(should_fail_no_match2 = starts_with("abc def", "abc df"));
+    MAKE_TESTVAR(should_fail_no_match2 = begins_with("abc def", "abc df"));
     TEST_TRUE(should_fail_no_match2 == false);
 
     END_TEST();

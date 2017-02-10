@@ -34,7 +34,6 @@ namespace httpdlib
  *
  * This implementation doesn't copy data, but simply
  * stores a pointer to the raw data and a length.
- * When sending
  */
 class pointer_response : public interface::response
 {

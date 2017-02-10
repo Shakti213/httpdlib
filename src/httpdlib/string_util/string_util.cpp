@@ -214,7 +214,7 @@ bool ends_with(const std::string &string, const std::string &ending) {
     return retval;
 }
 
-bool starts_with(const std::string &string, const std::string &start) {
+bool begins_with(const std::string &string, const std::string &start) {
     bool retval = false;
     if (string.size() >= start.size()) {
         auto string_iter = string.begin();

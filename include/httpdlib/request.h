@@ -35,6 +35,9 @@
 namespace httpdlib
 {
 
+/**
+ * @brief Requests are parsed and stored in this class.
+ */
 class request
 {
 public:
@@ -280,7 +283,15 @@ public:
      * @param The new maximum URI length.
      */
     void set_max_uri_length(const std::size_t &max_uri);
+    /**
+     * @brief Gets the current log level
+     * @return  current log level (0 = off, higher is more logging)
+     */
     int log_level() const;
+    /**
+     * @brief Sets the log level
+     * @param The new log level
+     */
     void set_log_level(int log_level);
 };
 }

@@ -46,17 +46,16 @@ bool response_generator::check_filters(const request &request) {
         [&request](const auto &f) { return f(request) == false; });
 }
 
-bool response_generator::priv_is_handler_for_request(const request &) {
+bool response_generator::priv_can_satisfy(const request &) {
     return true;
 }
 
-bool httpdlib::interface::response_generator::is_handler_for_request(
+bool httpdlib::interface::response_generator::can_satisfy(
     const request &request) {
-    return check_filters(request) && priv_is_handler_for_request(request);
+    return priv_can_satisfy(request) && check_filters(request);
 }
 
-void response_generator::add_filter(
-    std::function<bool(const request &)> filter) {
+void response_generator::add_filter(filter_t filter) {
     m_filters.push_back(filter);
 }
 

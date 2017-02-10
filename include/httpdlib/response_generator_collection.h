@@ -33,6 +33,17 @@
 namespace httpdlib
 {
 
+/**
+ * @brief A response generator that holds response generators.
+ *
+ * This makes it possible to use different response generators
+ * depending on filters etc and these can be stored in a
+ * response_generator_collection. Collections can also hold
+ * other response_generator_collection instances (since they all implement
+ * the response_generator interface) which makes it possible to build trees
+ * of response generators that create different responses.
+ *
+ */
 class response_generator_collection : public interface::response_generator
 {
 
@@ -53,7 +64,7 @@ public:
     void clear_response_generators();
 
 protected:
-    bool priv_is_handler_for_request(const request &request) override;
+    bool priv_can_satisfy(const request &request) override;
 };
 }
 

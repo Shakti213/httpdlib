@@ -38,25 +38,61 @@ namespace interface
 
 class response_generator
 {
+public:
+    typedef std::function<bool(const request &)> filter_t;
+
 protected:
-    std::vector<std::function<bool(const request &)>> m_filters;
+    std::vector<filter_t> m_filters;
 
 public:
-    // public pure virtuals
+    /**
+     * @brief Gets a response for the specified request.
+     * @param The request to generate the response to.
+     * @return  A response or nullptr if the response_generator cannot satisfy
+     * the request.
+     */
     virtual std::unique_ptr<response> get_response(const request &request) = 0;
 
-    // public virtuals
     virtual ~response_generator();
-
-    bool is_handler_for_request(const request &request);
-
-    void add_filter(std::function<bool(const request &)> filter);
+    /**
+     * @brief Checks if a response_generator can satisfy a request
+     * @param request The request to check
+     * @return True if the response_generator can satisfy a request.
+     *
+     * This checks the filters AND priv_can_satisfy to make sure the
+     * response_generator can satisfy the request.
+     */
+    bool can_satisfy(const request &request);
+    /**
+     * @brief Adds a filter to the response_generator.
+     * @param filter The filter to add
+     */
+    void add_filter(filter_t filter);
+    /**
+     * @brief Removes all filters.
+     */
     void clear_filters();
 
 protected:
-    // default implementatiosn is probably sane for most cases
+    /**
+     * @brief Checks all filters and makes sure request passes all of them
+     * @param request The request to check
+     * @return True if request passes all filters, otherwise false.
+     */
     virtual bool check_filters(const request &request);
-    virtual bool priv_is_handler_for_request(const request &);
+    /**
+     * @brief This method is always used in checks to see if a
+     * response_generator can satisfy a request.
+     * @param request The request to check
+     * @return  True if the private check is ok. Otherwise false.
+     *
+     * This should only be used for checks that a user should not be able to
+     * skip.
+     *
+     * Normally filters should be good enough, see response_generator_collection
+     * for an example of when this makes sense to override.
+     */
+    virtual bool priv_can_satisfy(const request &request);
 };
 
 } // namespace interface

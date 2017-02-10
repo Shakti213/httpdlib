@@ -43,10 +43,11 @@ namespace httpdlib
  *
  * This implementation is nice to use for rather small data that is
  * programatically generated, for instance to send a response containing
- * current program state.
+ * current program state, or small in-built error pages etc.
  *
  * For large buffers of data an implementation that does't copy
- * to an internal buffer should be considered instead.
+ * to an internal buffer should be considered instead (see pointer_response
+ * or stream_response).
  *
  */
 class memory_response : public interface::response

@@ -35,13 +35,13 @@ std::size_t header_collection::size() const {
     return m_headers.size();
 }
 
-bool header_collection::contains(const std::string &name) const {
-    auto header = m_headers.find(to_lower(name));
+bool header_collection::contains(const std::string &key) const {
+    auto header = m_headers.find(to_lower(key));
     return header != m_headers.end();
 }
 
-std::string header_collection::value(const std::string &name) const {
-    auto header = m_headers.find(to_lower(name));
+std::string header_collection::value(const std::string &key) const {
+    auto header = m_headers.find(to_lower(key));
     if (header != m_headers.end()) {
         return header->second;
     }

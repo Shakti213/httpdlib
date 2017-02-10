@@ -32,6 +32,15 @@
 namespace httpdlib
 {
 
+/**
+ * @brief Builds a response based on an istream
+ *
+ * The istream can be a file or any other implementation of std::istream.
+ * This uses an internal buffer of 128 kB to read into and use as a
+ * storage to send from. This allows for very big files to be served
+ * without loading them into RAM first.
+ *
+ */
 class stream_response : public interface::response
 {
     std::unique_ptr<std::istream> m_stream;

@@ -28,9 +28,9 @@ namespace httpdlib
 
 response_generator_collection::storage_t::iterator
 response_generator_collection::get_generator_iter(const request &request) {
-    return std::find_if(
-        std::begin(m_response_generators), std::end(m_response_generators),
-        [&](auto &elem) { return elem->is_handler_for_request(request); });
+    return std::find_if(std::begin(m_response_generators),
+                        std::end(m_response_generators),
+                        [&](auto &elem) { return elem->can_satisfy(request); });
 }
 
 std::unique_ptr<interface::response>
@@ -58,8 +58,7 @@ void response_generator_collection::clear_response_generators() {
     m_response_generators.clear();
 }
 
-bool response_generator_collection::priv_is_handler_for_request(
-    const request &request) {
+bool response_generator_collection::priv_can_satisfy(const request &request) {
     auto iter = get_generator_iter(request);
 
     return iter != std::end(m_response_generators);

@@ -32,16 +32,14 @@ namespace httpdlib
 {
 
 /**
- * @brief Filesystem mplementation of a response_generator
+ * @brief Filesystem implementation of a response_generator
  *
  * This implementation is very basic, the constructor takes a
  * directory path and all files in this directory will be served.
  *
- * Note that the serving method is very naive, it will load the entire
- * file to RAM and then serve it using memory_response.
- * A better implementation would probably used memorymapped files together
- * with a response implementation that could serve these memory-mapped files
- * without copying them to RAM first.
+ * The file responses are actually stream_response instances and uses
+ * a buffered approach so that big files can be served without loading
+ * them into RAM first.
  *
  * Uses the file type to get the content type. All html files are
  * assumed to be utf-8 files and charset will be set to this.
