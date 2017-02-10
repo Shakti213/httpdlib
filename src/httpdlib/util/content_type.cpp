@@ -90,13 +90,7 @@ void content_type_register(std::string file_ending,
  * unknown
  * file-types.
  */
-std::string content_type_from_file_type(std::string type) {
-    if (type.size() > 0) {
-        if (type[0] != '.') {
-            type = "." + type;
-        }
-    }
-
+std::string content_type_from_file_type(const std::string &type) {
     auto builtin_candidate = builtin_types.find(type);
     if (builtin_candidate != builtin_types.end()) {
         return builtin_candidate->second;

@@ -59,7 +59,8 @@ public:
 
     virtual int code() const;
     virtual void set_code(int code);
-    virtual void set_header(std::string header, std::string value);
+    virtual void set_header(const std::string &header,
+                            const std::string &value);
     virtual std::size_t write_next(writer_t writer);
 
     virtual bool done() const;

@@ -92,8 +92,9 @@ private:
 
     void set_parse_result(const ParseResult &parse_result);
 
-    bool check_accepts(std::string value, std::string header_value,
-                       std::string always_accepts);
+    bool check_accepts(const std::string &value,
+                       const std::string &header_value,
+                       const std::string &always_accepts);
 
     int m_log_level = 0;
 

@@ -191,7 +191,7 @@ void response::maybe_set_code204_or_content_length(size_t content_length) {
     }
 }
 
-void response::set_header(std::string header, std::string value) {
+void response::set_header(const std::string &header, const std::string &value) {
     m_headers.add(header, value);
 }
 

@@ -36,16 +36,16 @@
 #define fs_namespace std::experimental::filesystem
 #endif
 
-bool file_exists(std::string file_and_path) {
+bool file_exists(const std::string &file_and_path) {
     return fs_namespace::exists(file_and_path) &&
            std::experimental::filesystem::is_regular_file(file_and_path);
 }
 
-std::size_t file_size(std::string file_and_path) {
+std::size_t file_size(const std::string &file_and_path) {
     return static_cast<std::size_t>(fs_namespace::file_size(file_and_path));
 }
 
-std::vector<char> read_all(std::string file_and_path) {
+std::vector<char> read_all(const std::string &file_and_path) {
     std::vector<char> retval;
     auto fsize = file_size(file_and_path);
     retval.resize(fsize);
@@ -56,7 +56,7 @@ std::vector<char> read_all(std::string file_and_path) {
     return retval;
 }
 
-std::string file_type(std::string file_and_path) {
+std::string file_type(const std::string &file_and_path) {
     fs_namespace::path p(file_and_path);
     return p.extension().string();
 }
@@ -65,8 +65,8 @@ namespace httpdlib
 {
 
 filesystem_response_generator::filesystem_response_generator(
-    std::string directory)
-    : m_directory(std::move(directory)) {
+    const std::string &directory)
+    : m_directory(directory) {
 }
 
 std::unique_ptr<interface::response>

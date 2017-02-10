@@ -38,7 +38,7 @@ namespace httpdlib
 using namespace string_util;
 
 std::vector<std::pair<double, std::string>>
-parse_header_with_qvalues(std::string header_value) {
+parse_header_with_qvalues(const std::string &header_value) {
 
     using stored_t = std::pair<double, std::string>;
     std::vector<stored_t> retval;
@@ -142,8 +142,9 @@ void request::set_parse_result(const ParseResult &parse_result) {
     m_parse_result = parse_result;
 }
 
-bool request::check_accepts(std::string value, std::string header_value,
-                            std::string always_accepts) {
+bool request::check_accepts(const std::string &value,
+                            const std::string &header_value,
+                            const std::string &always_accepts) {
     auto lower_case_value = string_util::to_lower(value);
 
     auto all_accepted_values = parse_header_with_qvalues(header_value);
