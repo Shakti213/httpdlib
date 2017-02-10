@@ -138,7 +138,7 @@ virtual std::size_t response::write_payload_part(writer_t writer, std::size_t of
 `prepare_write()` is called by the default `response::write_next(writer_t)`
 function before any writes are made. Thus any changes to the response code, or
 setting of any headers based on content etc. can be made here.
-`write_payload_part(writer_t writer, std::size_t offset)` It can be called
+`write_payload_part(writer_t writer, std::size_t offset)` can be called
 multiple times by the default write_next implementation. The offset is the
 number of payload bytes that has been written up until now.
 
