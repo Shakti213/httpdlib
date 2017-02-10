@@ -64,12 +64,9 @@ namespace util
  * @param File ending, including the leading dot (".css" for instance).
  * @param The content type that should be associated ("text/html" for instance).
  */
-void content_type_register(std::string file_ending,
-                           const std::string content_type) {
+void content_type_register(const std::string &file_ending,
+                           const std::string &content_type) {
     if (file_ending.size() > 0) {
-        if (file_ending[0] != '.') {
-            file_ending += ".";
-        }
         builtin_types[file_ending] = content_type;
     }
 }
