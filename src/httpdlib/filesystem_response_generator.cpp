@@ -51,7 +51,7 @@ std::vector<char> read_all(const std::string &file_and_path) {
     retval.resize(fsize);
 
     std::ifstream fin(file_and_path, std::ios_base::in | std::ios_base::binary);
-    fin.read(retval.data(), fsize);
+    fin.read(retval.data(), static_cast<std::streamsize>(fsize));
 
     return retval;
 }
