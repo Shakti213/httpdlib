@@ -65,7 +65,7 @@ void header_collection::parse(const std::string &str) {
     auto all_rows = split_all(str, '\n');
     for (const auto &row : all_rows) {
         auto split_at_colon = split_once(row, ':');
-        auto key = trim_both(split_at_colon.first);
+        auto key = string_util::to_lower(trim_both(split_at_colon.first));
         auto value = trim_both(split_at_colon.second);
         if (key.size() > 0) {
             m_headers[key] = value;
