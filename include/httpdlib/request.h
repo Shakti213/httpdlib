@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 
+#include "httpdlib/codes/codes.h"
 #include "httpdlib/header_collection.h"
 
 namespace httpdlib
@@ -44,11 +45,12 @@ public:
     enum ParseResult {
         NotFinished,
         Finished,
-        BadRequest = 400,
-        MethodNotAllowed = 405,
-        NotImplemented = 501,
-        UriTooLong = 414,
-        UnsupportedVersion = 505
+        BadRequest = codes::bad_request,
+        MethodNotAllowed = codes::method_not_allowed,
+        NotImplemented = codes::not_implemented,
+        PayloadTooLarge = codes::payload_too_large,
+        UriTooLong = codes::uri_too_long,
+        UnsupportedVersion = codes::unsupported_version,
     };
 
     typedef std::map<std::string, std::string> query_values_t;
