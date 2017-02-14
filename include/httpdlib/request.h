@@ -94,7 +94,7 @@ private:
 
     std::vector<std::string> m_allowed_methods;
 
-    std::size_t m_max_uri = 16000;
+    std::size_t m_max_uri = 16 * 1024;
 
     void set_parse_result(const ParseResult &parse_result);
 
@@ -275,7 +275,7 @@ public:
      */
     void set_allowed_methods(const std::vector<std::string> &allowed_methods);
     /**
-     * @brief Gets the maximum URI length. Default is 16000 bytes.
+     * @brief Gets the maximum URI length. Default is 16kB.
      * @return Maximum URI length.
      *
      * The length includes URL, query string and fragment.
