@@ -23,6 +23,9 @@ int main() {
             std::cout << "Header value[" << i++ << "]: " << h.first << " = "
                       << h.second << std::endl;
         }
+
+        std::cout << "Bytes request data read: " << request.request_data_read()
+                  << std::endl;
     }
     else {
         std::cout << "Parse error, code " << request.parse_result()

@@ -20,7 +20,12 @@ HEADERS += \
            ../include/httpdlib/interface/response_generator.h \
            ../include/httpdlib/string_util/string_util.h \
            ../include/httpdlib/util/content_type.h \
-           httpdlib/util/platform/content_type.h
+           httpdlib/util/platform/content_type.h \
+            ../include/httpdlib/interface/data_parser.h \
+    ../include/httpdlib/parser/request_line.h \
+    ../include/httpdlib/parser/header.h \
+    ../include/httpdlib/parser/body_identity_encoding.h \
+    ../include/httpdlib/parser/body_chunked_encoding.h
 SOURCES +=  \
            httpdlib/filesystem_response_generator.cpp \
            httpdlib/header_collection.cpp \
@@ -33,6 +38,11 @@ SOURCES +=  \
            httpdlib/interface/response_generator.cpp \
            httpdlib/string_util/string_util.cpp \
            httpdlib/util/content_type.cpp \
+    httpdlib/interface/data_parser.cpp \
+    httpdlib/parser/request_line.cpp \
+    httpdlib/parser/header.cpp \
+    httpdlib/parser/body_identity_encoding.cpp \
+    httpdlib/parser/body_chunked_encoding.cpp
 
 use_platform_content_types {
     DEFINES *= USE_PLATFORM_CONTENT_TYPES

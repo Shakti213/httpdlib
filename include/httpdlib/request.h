@@ -27,11 +27,14 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "httpdlib/codes/codes.h"
 #include "httpdlib/header_collection.h"
+#include "httpdlib/parser/header.h"
+#include "httpdlib/parser/request_line.h"
 
 namespace httpdlib
 {
@@ -56,44 +59,37 @@ public:
     typedef std::map<std::string, std::string> query_values_t;
 
 private:
-    enum State {
-        WaitingMethodStart,
-        CollectingMethod,
-        WaitingUriStart,
-        CollectingUri,
-        CollectingQuery,
-        CollectingFragment,
-        WaitingVersionStart,
-        CollectingVersion,
-        WaitingHeader,
-        WaitingData,
-        ResetRequired
+    enum state {
+        waiting_request_line,
+        waiting_headers,
+        waiting_data,
+        reset_required
     };
 
-    State m_state;
+    parser::request_line m_request_line_parser;
+    std::unique_ptr<parser::header> m_header_parser;
+    std::unique_ptr<interface::data_parser> m_body_parser;
+
+    state m_state;
 
     std::string m_request_collector;
 
     std::string m_method;
     std::string m_uri;
     std::string m_fragment;
-
     query_values_t m_query_string_values;
-    std::size_t m_query_string_length;
-
-    int m_majorVersion;
-    int m_minorVersion;
-
     header_collection m_headers;
 
     std::size_t m_request_data_to_read;
     std::size_t m_request_data_read;
     std::vector<char> m_request_data;
 
-    ParseResult m_parse_result;
+    int m_parse_result;
 
     std::vector<std::string> m_allowed_methods;
 
+    std::size_t m_next_chunk_size = 0;
+    bool m_trailing_headers = false;
     std::size_t m_max_uri = 16 * 1024;
     std::size_t m_max_request_data_size = 128 * 1024;
 
@@ -106,6 +102,8 @@ private:
     int m_log_level = 0;
 
     void log(int level, const std::string &data);
+
+    void set_body_data_parser();
 
 public:
     request();
@@ -252,7 +250,7 @@ public:
      * @return NotFinished if more data is needed, Finished if a request is
      * completed, any other value means a parse error occurred.
      */
-    ParseResult parse_result() const;
+    int parse_result() const;
 
     /**
      * @brief Can be used to check if a request has been fully parsed.
@@ -314,8 +312,7 @@ public:
      * This may not equal request_data_size(). If the user has cleared
      * the request data buffer by calling clear_request_data(), and the buffer
      * held at least one byte, then this will be greater than
-     * request_data_read(). The request is not done until request_data_read()
-     * returns the same value as content_length()
+     * request_data_read(). The request is not done until finished returns true.
      */
     std::size_t request_data_read() const;
     /**

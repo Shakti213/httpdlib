@@ -16,5 +16,10 @@ SOURCES += \
     main.cpp \
     ../../src/httpdlib/header_collection.cpp \
     ../../src/httpdlib/request.cpp \
-    ../../src/httpdlib/string_util/string_util.cpp
+    ../../src/httpdlib/string_util/string_util.cpp \
+    ../../src/httpdlib/interface/data_parser.cpp \
+    ../../src/httpdlib/parser/header.cpp \
+    ../../src/httpdlib/parser/request_line.cpp \
+    ../../src/httpdlib/parser/body_chunked_encoding.cpp \
+    ../../src/httpdlib/parser/body_identity_encoding.cpp
 

@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 #include "httpdlib/request.h"
+#include "httpdlib/parser/body_chunked_encoding.h"
+#include "httpdlib/parser/body_identity_encoding.h"
 #include "httpdlib/string_util/string_util.h"
 #include <algorithm>
 #include <cctype>
@@ -82,6 +84,27 @@ parse_header_with_qvalues(const std::string &header_value) {
     return retval;
 }
 
+std::size_t hex_to_int(const std::string &hex) {
+    std::size_t retval = 0;
+    auto char_to_num = [](auto ch) -> std::size_t {
+        if (ch >= '0' && ch <= '9') {
+            return static_cast<std::size_t>(ch - '0');
+        }
+        else if (ch >= 'a' && ch <= 'f') {
+            return static_cast<std::size_t>(10 + (ch - 'a'));
+        }
+
+        return 0;
+    };
+
+    for (auto c : hex) {
+        retval *= 16;
+        retval += char_to_num(c);
+    }
+
+    return retval;
+}
+
 std::map<std::string, std::string> parse_query_string(const std::string &data) {
     std::map<std::string, std::string> retval;
     std::string key_value;
@@ -104,7 +127,7 @@ std::map<std::string, std::string> parse_query_string(const std::string &data) {
     return retval;
 }
 
-request::ParseResult request::parse_result() const {
+int request::parse_result() const {
     return m_parse_result;
 }
 
@@ -207,6 +230,22 @@ void request::log(int level, const std::string &data) {
     }
 }
 
+void request::set_body_data_parser() {
+    auto transfer_encoding = m_headers["transfer-encoding"];
+    auto header_content_length = content_length();
+    if (transfer_encoding.find("chunked") != transfer_encoding.npos) {
+        m_body_parser.reset(
+            new parser::body_chunked_encoding(m_request_data, m_headers));
+    }
+    else if (header_content_length > 0) {
+        m_body_parser.reset(new parser::body_identity_encoding(
+            header_content_length, m_request_data));
+    }
+    else {
+        m_body_parser.reset();
+    }
+}
+
 int request::log_level() const {
     return m_log_level;
 }
@@ -305,20 +344,21 @@ request::request() : m_allowed_methods{"GET", "POST", "PUT"} {
 }
 
 void request::reset() {
+    m_request_line_parser = parser::request_line();
+    m_header_parser.reset(new parser::header(m_headers));
+    m_body_parser.reset();
     m_request_collector = "";
     m_headers.clear();
-    m_majorVersion = -1;
-    m_minorVersion = -1;
     m_method = "";
     m_query_string_values.clear();
-    m_state = WaitingMethodStart;
+    m_state = waiting_request_line;
     m_uri = "";
     m_request_data_to_read = 0;
     m_request_data_read = 0;
     m_request_data.clear();
     m_parse_result = NotFinished;
-    m_query_string_length = 0;
     m_fragment = "";
+    m_next_chunk_size = 0;
 }
 
 const std::string &request::method() const {
@@ -362,233 +402,84 @@ const std::string &request::fragment() const {
 }
 
 void request::add_data(char data) {
-    if (m_state >= WaitingMethodStart && m_state < WaitingData) {
+    if (m_state >= waiting_request_line && m_state < waiting_data) {
         if (data <= 0) {
-            m_state = ResetRequired;
+            m_state = reset_required;
             m_parse_result = BadRequest;
         }
     }
     switch (m_state) {
-    case WaitingMethodStart:
-        if (data >= 'A' && data <= 'Z') {
-            // Always reset at the start of a new cycle
-            reset();
-            m_method = data;
-            m_state = CollectingMethod;
+    case waiting_request_line:
+        m_request_line_parser.add_data(data);
+        if (m_request_line_parser.error() != 0) {
+            m_state = reset_required;
+            m_parse_result = m_request_line_parser.error();
         }
-        break;
+        else if (m_request_line_parser.done()) {
+            m_state = waiting_headers;
+            m_uri = m_request_line_parser.uri();
+            m_method = m_request_line_parser.method();
+            m_query_string_values =
+                parse_query_string(m_request_line_parser.query_string());
+            m_fragment = m_request_line_parser.fragment();
 
-    case CollectingMethod:
-        if (data == ' ') {
-            if (std::find(m_allowed_methods.begin(), m_allowed_methods.end(),
-                          m_method) == m_allowed_methods.end()) {
-                m_state = ResetRequired;
+            if (!std::any_of(std::begin(m_allowed_methods),
+                             std::end(m_allowed_methods),
+                             [&](auto m) { return m == m_method; })) {
+                m_state = reset_required;
                 m_parse_result = MethodNotAllowed;
-                log(1, "Method not allowed: " + m_method);
             }
-            else {
-                log(3,
-                    "Ending CollectingMethod m_method = \"" + m_method + "\"");
-                m_state = WaitingUriStart;
+            else if (m_request_line_parser.version() != "HTTP/1.1") {
+                m_state = reset_required;
+                m_parse_result = UnsupportedVersion;
             }
         }
-        else {
-            m_method += data;
-            auto max_allowed_method =
-                std::max_element(std::begin(m_allowed_methods),
-                                 std::end(m_allowed_methods),
-                                 [](const auto &a, const auto &b) {
-                                     return a.length() < b.length();
-                                 })
-                    ->length();
-            if (m_method.size() > max_allowed_method) {
-                log(1, "Method not allowed: " + m_method);
-                m_parse_result = MethodNotAllowed;
-                m_state = ResetRequired;
-            }
+        else if (m_request_line_parser.size() > m_max_uri) {
+            m_state = reset_required;
+            m_parse_result = UriTooLong;
         }
         break;
 
-    case WaitingUriStart:
-        if (data != ' ') {
-            m_state = CollectingUri;
-            m_request_collector = data;
+    case waiting_headers:
+        m_header_parser->add_data(data);
+        if (m_header_parser->error() != 0) {
+            m_state = reset_required;
+            m_parse_result = m_header_parser->error();
         }
-        break;
-
-    case CollectingUri:
-        if (data == '?' || data == '#' || data == ' ') {
-            bool uri_ok = true;
-            m_uri = url_decode(m_request_collector, uri_ok);
-            m_request_collector = "";
-            log(3, "Ending CollectingUri, URI = \"" + m_uri + "\"");
-            if (uri_ok == false) {
-                m_state = ResetRequired;
-                m_parse_result = BadRequest;
-            }
-            else if (data == '?') {
-                m_state = CollectingQuery;
-            }
-            else if (data == '#') {
-                m_state = CollectingFragment;
-            }
-            else {
-                m_state = WaitingVersionStart;
-            }
-        }
-        else {
-            m_request_collector += data;
-            if (m_request_collector.size() > m_max_uri) {
-                m_state = ResetRequired;
-                m_parse_result = UriTooLong;
-            }
-        }
-        break;
-
-    case CollectingQuery:
-        if (data == '#' || data == ' ') {
-            log(1, "Query string received: " + m_request_collector);
-            m_query_string_values = parse_query_string(m_request_collector);
-            m_request_collector = "";
-            for (auto c : m_query_string_values) {
-                log(3, "\t\"" + c.first + "\" = \"" + c.second + "\"");
-            }
-            if (data == '#') {
-                m_state = CollectingFragment;
-            }
-            else {
-                m_state = WaitingVersionStart;
-            }
-        }
-        else {
-            m_request_collector += data;
-            m_query_string_length++;
-            if (m_request_collector.size() + m_uri.size() > m_max_uri) {
-                m_state = ResetRequired;
-                m_parse_result = UriTooLong;
-            }
-        }
-        break;
-
-    case CollectingFragment:
-        if (data == ' ') {
-            m_state = WaitingVersionStart;
-            m_fragment = m_request_collector;
-            m_request_collector = "";
-        }
-        else {
-            m_request_collector += data;
-            if (m_request_collector.size() + m_uri.size() +
-                    m_query_string_length >
-                m_max_uri) {
-                m_state = ResetRequired;
-                m_parse_result = UriTooLong;
-            }
-        }
-        break;
-
-    case WaitingVersionStart:
-        if (data != ' ') {
-            m_request_collector = data;
-            m_state = CollectingVersion;
-        }
-        break;
-
-    case CollectingVersion:
-        if (data == '\r') {
-            m_state = WaitingHeader;
-            std::regex version_regex("HTTP/(\\d+)\\.(\\d+)");
-            std::smatch matches;
-            bool valid_version = true;
-            if (std::regex_match(m_request_collector, matches, version_regex)) {
-                if (matches.size() == 3) {
-                    m_majorVersion = std::stoi(matches[1]);
-                    m_minorVersion = std::stoi(matches[2]);
-
-                    log(3, "HTTP version = " + std::to_string(m_majorVersion) +
-                               "." + std::to_string(m_minorVersion));
-                    if (m_majorVersion != 1 || m_minorVersion != 1) {
-                        m_state = ResetRequired;
-                        m_parse_result = UnsupportedVersion;
-                    }
-                }
-                else {
-                    valid_version = false;
-                }
-            }
-            else {
-                valid_version = false;
-            }
-            if (valid_version) {
-                m_request_collector = data;
-            }
-            else {
-                m_state = WaitingMethodStart;
-                m_request_collector = data;
-            }
-        }
-        else {
-            m_request_collector += data;
-        }
-        break;
-
-    case WaitingHeader:
-        m_request_collector += data;
-        if (ends_with(m_request_collector, "\r\n\r\n")) {
-            log(1, "Ending WaitingHeader...");
-            m_headers.parse(m_request_collector);
-
-            for (auto i : m_headers) {
-                log(3, "\tHeader: \"" + m_headers.key(i) + "\" = \"" +
-                           m_headers.value(i) + "\"");
-            }
-
-            m_request_data_to_read = content_length();
-            if (m_request_data_to_read > m_max_request_data_size) {
-                m_state = ResetRequired;
-                m_parse_result = PayloadTooLarge;
-            }
-            else if (m_request_data_to_read != 0) {
-                m_request_data_read = 0;
-                m_state = WaitingData;
-                log(3, "Waiting data: " +
-                           std::to_string(m_request_data_to_read) + " bytes");
-                m_request_data.reserve(m_request_data_to_read);
-                log(3, "m_request_data.size() = " +
-                           std::to_string(m_request_data.size()));
+        else if (m_header_parser->done()) {
+            set_body_data_parser();
+            m_request_data_read = 0;
+            if (m_body_parser) {
+                m_state = waiting_data;
+                log(3, "Waiting for request data");
             }
             else {
                 m_parse_result = Finished;
-                log(2, "Finished");
-                m_state = ResetRequired;
+                log(2, "Request finished");
+                m_state = reset_required;
             }
+        }
+        break;
+    case waiting_data: {
+        auto data_added = m_body_parser->add_data(data);
+        if (m_body_parser->done()) {
+            m_state = reset_required;
+            m_parse_result = Finished;
+            log(3, "Finished receiving data. Received " +
+                       std::to_string(m_body_parser->size()) + " bytes");
         }
         else {
-            if (m_request_collector.size() >= 3 &&
-                (m_request_collector[0] == ' ' ||
-                 m_request_collector[1] == ' ' ||
-                 m_request_collector[2] == ' ')) {
-                // Ignore everything!
-                m_state = ResetRequired;
-                m_parse_result = BadRequest;
-                log(1, "Bad request detected...bad header format");
+            if (m_body_parser->size() > m_max_request_data_size) {
+                m_state = reset_required;
+                m_parse_result = PayloadTooLarge;
             }
+            m_request_data_read += data_added ? 1 : 0;
         }
-        break;
+    }
 
-    case WaitingData:
-        m_request_data_read++;
-        m_request_data.push_back(data);
-        if (m_request_data_read == m_request_data_to_read) {
-            log(3, "Finished receiving data. Received " +
-                       std::to_string(m_request_data_read) + " bytes");
-            m_state = ResetRequired;
-            m_parse_result = Finished;
-        }
-        break;
-
-    case ResetRequired:
-        // Some error. Must manually reset, does nothing!
+    break;
+    case reset_required:
+        // Must manually reset, does nothing!
         break;
     }
 }

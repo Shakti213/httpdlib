@@ -25,7 +25,12 @@ SOURCES += main.cpp \
     ../../src/httpdlib/response_generator_collection.cpp \
     ../../src/httpdlib/interface/response.cpp \
     ../../src/httpdlib/interface/response_generator.cpp \
-    ../../src/httpdlib/stream_response.cpp
+    ../../src/httpdlib/stream_response.cpp \
+    ../../src/httpdlib/parser/request_line.cpp \
+    ../../src/httpdlib/interface/data_parser.cpp \
+    ../../src/httpdlib/parser/header.cpp \
+    ../../src/httpdlib/parser/body_chunked_encoding.cpp \
+    ../../src/httpdlib/parser/body_identity_encoding.cpp
 
 HEADERS += \
     webserver.h \
