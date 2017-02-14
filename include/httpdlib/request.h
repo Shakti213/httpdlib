@@ -95,6 +95,7 @@ private:
     std::vector<std::string> m_allowed_methods;
 
     std::size_t m_max_uri = 16 * 1024;
+    std::size_t m_max_request_data_size = 128 * 1024;
 
     void set_parse_result(const ParseResult &parse_result);
 
@@ -286,6 +287,16 @@ public:
      * @param The new maximum URI length.
      */
     void set_max_uri_length(const std::size_t &max_uri);
+    /**
+     * @brief Gets the maximum request data size. Default is 128 kB
+     * @return The maximum request data size.
+     */
+    std::size_t max_request_data_size() const;
+    /**
+     * @brief Sets the maximum request data size.
+     * @param max The new maximum data size.
+     */
+    void set_max_request_data_size(const std::size_t max);
     /**
      * @brief Gets the current log level
      * @return  current log level (0 = off, higher is more logging)

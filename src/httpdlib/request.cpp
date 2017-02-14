@@ -138,6 +138,14 @@ void request::set_max_uri_length(const std::size_t &max_uri) {
     m_max_uri = max_uri;
 }
 
+size_t request::max_request_data_size() const {
+    return m_max_request_data_size;
+}
+
+void request::set_max_request_data_size(const size_t max) {
+    m_max_request_data_size = max;
+}
+
 void request::set_parse_result(const ParseResult &parse_result) {
     m_parse_result = parse_result;
 }
@@ -536,7 +544,11 @@ void request::add_data(char data) {
             }
 
             m_request_data_to_read = content_length();
-            if (m_request_data_to_read != 0) {
+            if (m_request_data_to_read > m_max_request_data_size) {
+                m_state = ResetRequired;
+                m_parse_result = PayloadTooLarge;
+            }
+            else if (m_request_data_to_read != 0) {
                 m_request_data_read = 0;
                 m_state = WaitingData;
                 log(3, "Waiting data: " +
