@@ -57,6 +57,9 @@ public:
      * @brief Typedefinition for the writer_t type.
      */
     typedef std::function<std::size_t(const char *, std::size_t)> writer_t;
+    /**
+     * @brief Default destructor does nothing but is marked virtual.
+     */
     virtual ~response();
     /**
      * @brief code
