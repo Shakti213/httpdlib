@@ -1,5 +1,8 @@
 QT += core network gui
 
+unix:DEFINES+=PUB_HTML=\\\"$$(HOME)/public_html\\\"
+win32:DEFINES+=PUB_HTML=\\\"c:/www-data\\\"
+
 CONFIG += c++14
 CONFIG -= use_platform_content_types
 

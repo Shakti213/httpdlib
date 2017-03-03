@@ -57,8 +57,7 @@ public:
 
 WebServer::WebServer(QObject *parent) : QObject(parent) {
     // Filter so only GET requests will go through
-    response_generator = new httpdlib::filesystem_response_generator(
-        R"|(c:/www-data)|");
+    response_generator = new httpdlib::filesystem_response_generator(PUB_HTML);
     response_generator->add_filter([](const auto &r) {
         return r.method() == "GET" &&
                httpdlib::string_util::ends_with(r.uri(), ".json") == false;
