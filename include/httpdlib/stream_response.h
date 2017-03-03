@@ -60,6 +60,7 @@ public:
 protected:
     void prepare_write() override;
     size_t write_payload_part(writer_t writer, size_t offset) override;
+    void async_payload_written(std::size_t bytes_written) override;
 };
 
 } // namespace httpdlib

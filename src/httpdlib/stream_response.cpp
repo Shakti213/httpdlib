@@ -61,16 +61,21 @@ size_t stream_response::write_payload_part(writer_t writer, size_t) {
         write_bytes(m_buffer.data() + m_buffer_offset,
                     m_buffer_length - m_buffer_offset, writer);
     if (bytes_written > 0) {
-        m_buffer_offset += bytes_written;
-        if (m_buffer_offset >= m_buffer_length) {
-            m_buffer_offset = m_buffer_length;
-            if (m_stream->good()) {
-                read_next_into_buffer();
-            }
-        }
+        async_payload_written(bytes_written);
     }
 
     return bytes_written;
+}
+
+void stream_response::async_payload_written(std::size_t bytes_written)
+{
+    m_buffer_offset += bytes_written;
+    if(m_buffer_offset  >= m_buffer_length) {
+        m_buffer_offset = m_buffer_length;
+        if(m_stream->good()) {
+            read_next_into_buffer();
+        }
+    }
 }
 
 } // namespace httpdlib

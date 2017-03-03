@@ -84,8 +84,13 @@ public:
      * @brief Should be called repeatedly while done() returns false.
      * @param writer The writer to use.
      * @return Number of bytes written at the time of the call.
+     *
+     * If async writing is done the writer is assumed to return 0 and the
+     * implementor must call async_bytes_written once it is known how many bytes
+     * had been written.
      */
     virtual std::size_t write_next(writer_t writer);
+    virtual void async_bytes_written(std::size_t bytes_written);
     /**
      * @brief  Checks if the entire response has been written or not.
      * @return True if response has been completely written. Otherwise false.
@@ -108,7 +113,8 @@ protected:
      * @param offset The number of payload bytes already written.
      * @return  Number of bytes written by this call.
      *
-     * This must be implemented by all responses.
+     * This must be implemented by all responses. If async writes are used
+     * this should simply return 0.
      */
     virtual std::size_t write_payload_part(writer_t writer,
                                            std::size_t offset) = 0;
@@ -121,6 +127,14 @@ protected:
      * with m_expected_payload_size
      */
     virtual bool payload_done(std::size_t payload_bytes_written) const;
+    /**
+     * @brief This is called by async_bytes_written when payload has been written.
+     * @param bytes_written The number of bytes written.
+     *
+     * Use this to update internal state in cases when bytes_written is 0.
+     * Default this does nothing.
+     */
+    virtual void async_payload_written(std::size_t bytes_written);
     /**
      * @brief Convenience function that sets either code 200 or 204.
      * @param content_length If content_length == 0 this will set code 204.

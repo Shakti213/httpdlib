@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
         qt_webserver \
-        stdin_example
+        stdin_example \
+    boost_asio_example

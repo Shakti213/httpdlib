@@ -185,6 +185,11 @@ bool response::payload_done(size_t payload_bytes_written) const {
     return payload_bytes_written >= m_expected_payload_size;
 }
 
+void response::async_payload_written(std::size_t)
+{
+
+}
+
 void response::maybe_set_code204_or_content_length(size_t content_length) {
     if (m_code == 200 && content_length == 0) {
         m_code = 204;
@@ -232,6 +237,18 @@ size_t response::write_next(response::writer_t writer) {
     auto bytes_written = write_payload_part(writer, m_write_next_offset);
     m_write_next_offset += bytes_written;
     return bytes_written;
+}
+
+void response::async_bytes_written(std::size_t bytes_written) {
+    m_write_next_offset += bytes_written;
+    if(m_state == state_write_headers &&
+            m_write_next_offset >= m_serialized_status_and_headers.length()) {
+        m_state = state_write_payload;
+        m_write_next_offset = 0;
+    }
+    else if(m_state == state_write_payload) {
+        async_payload_written(bytes_written);
+    }
 }
 
 bool response::done() const {
