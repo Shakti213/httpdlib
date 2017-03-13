@@ -26,7 +26,7 @@ public:
         auto new_connection = std::make_shared<ConnectionHandler>(m_io_service);
         m_acceptor.async_accept(new_connection->socket(), [=](auto ec) {
             new_connection->connected(ec);
-            handle_new_connection();
+            this->handle_new_connection();
         });
 
         for (int i = 0; i < 10; i++) {
@@ -44,7 +44,7 @@ public:
             std::make_shared<ConnectionHandler>(m_io_service);
         m_acceptor.async_accept(next_connection->socket(), [=](auto ec) {
             next_connection->connected(ec);
-            handle_new_connection();
+            this->handle_new_connection();
         });
     }
 
