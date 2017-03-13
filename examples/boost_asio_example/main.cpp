@@ -60,7 +60,7 @@ class http_handler : public std::enable_shared_from_this<http_handler>
 {
 public:
     http_handler(boost::asio::io_service &service)
-        : m_socket(service), m_conn_timeout_timer(service) {
+        : m_strand(service), m_socket(service), m_conn_timeout_timer(service) {
     }
 
     boost::asio::ip::tcp::socket &socket() {
@@ -124,13 +124,14 @@ private:
     }
 
     void read_data() {
-        m_socket.async_read_some(boost::asio::buffer(m_recv_data),
-                                 [me = shared_from_this()](auto ec, auto sz) {
-                                     if (ec) {
-                                         return;
-                                     }
-                                     me->data_read(sz);
-                                 });
+        m_socket.async_read_some(
+            boost::asio::buffer(m_recv_data),
+            m_strand.wrap([me = shared_from_this()](auto ec, auto sz) {
+                if (ec) {
+                    return;
+                }
+                me->data_read(sz);
+            }));
         update_timeout();
     }
 
@@ -138,12 +139,12 @@ private:
         auto writer = [&s = m_socket, me = shared_from_this() ](
             const char *p, std::size_t max_size) {
             s.async_write_some(boost::asio::buffer(p, max_size),
-                               [=](auto ec, auto cnt) {
+                               me->m_strand.wrap([=](auto ec, auto cnt) {
                                    if (ec) {
                                        return;
                                    }
                                    me->data_sent(cnt);
-                               });
+                               }));
             return std::size_t(0);
         };
 
@@ -151,6 +152,7 @@ private:
     }
 
     std::array<char, 2048> m_recv_data;
+    boost::asio::io_service::strand m_strand;
     boost::asio::ip::tcp::socket m_socket;
     boost::asio::deadline_timer m_conn_timeout_timer;
     httpdlib::request m_request;

@@ -43,19 +43,14 @@ namespace httpdlib
  */
 class stream_response : public interface::response
 {
-    std::unique_ptr<std::istream> m_stream;
-    // 128kB buffer
-    std::array<char, 131072> m_buffer;
-    std::size_t m_buffer_offset;
-    std::size_t m_buffer_length;
-    std::size_t m_size;
+    struct buffer;
 
-    void read_next_into_buffer();
+    std::unique_ptr<buffer> m_buffer;
 
 public:
     stream_response(std::unique_ptr<std::istream> stream);
     stream_response(std::istream *stream);
-    std::size_t size();
+    std::size_t size() const;
 
 protected:
     void prepare_write() override;

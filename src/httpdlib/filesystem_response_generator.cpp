@@ -124,6 +124,7 @@ filesystem_response_generator::get_response(const request &req) {
             std::ifstream *file_in = new std::ifstream(
                 file, std::ios_base::in | std::ios_base::binary);
             stream_response *resp = new stream_response(file_in);
+            resp->set_code(codes::ok);
             auto ctype = util::content_type_from_file_type(file_type(file));
             if (resp->size() > 25 * 1024 * 1024) {
                 // anything bigger than 25mb will always be an octet-stream
