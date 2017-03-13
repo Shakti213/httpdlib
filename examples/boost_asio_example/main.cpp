@@ -24,11 +24,10 @@ public:
         m_acceptor.listen(0);
         std::cout << "Listening on " << port << std::endl;
         auto new_connection = std::make_shared<ConnectionHandler>(m_io_service);
-        m_acceptor.async_accept(new_connection->socket(),
-                                [ new_connection, me = this ](auto ec) {
-                                    new_connection->connected(ec);
-                                    me->handle_new_connection();
-                                });
+        m_acceptor.async_accept(new_connection->socket(), [=](auto ec) {
+            new_connection->connected(ec);
+            handle_new_connection();
+        });
 
         for (int i = 0; i < 10; i++) {
             m_thread_pool.emplace_back([&]() { m_io_service.run(); });
@@ -43,11 +42,10 @@ public:
         std::cout << "New connection..." << std::endl;
         auto next_connection =
             std::make_shared<ConnectionHandler>(m_io_service);
-        m_acceptor.async_accept(next_connection->socket(),
-                                [ next_connection, me = this ](auto ec) {
-                                    next_connection->connected(ec);
-                                    me->handle_new_connection();
-                                });
+        m_acceptor.async_accept(next_connection->socket(), [=](auto ec) {
+            next_connection->connected(ec);
+            handle_new_connection();
+        });
     }
 
 private:
@@ -140,11 +138,11 @@ private:
         auto writer = [&s = m_socket, me = shared_from_this() ](
             const char *p, std::size_t max_size) {
             s.async_write_some(boost::asio::buffer(p, max_size),
-                               [me2 = me](auto ec, auto cnt) {
+                               [=](auto ec, auto cnt) {
                                    if (ec) {
                                        return;
                                    }
-                                   me2->data_sent(cnt);
+                                   me->data_sent(cnt);
                                });
             return std::size_t(0);
         };
