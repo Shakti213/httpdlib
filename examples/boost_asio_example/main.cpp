@@ -128,6 +128,7 @@ private:
             boost::asio::buffer(m_recv_data),
             m_strand.wrap([me = shared_from_this()](auto ec, auto sz) {
                 if (ec) {
+                    std::cout << "Error..." << std::endl;
                     return;
                 }
                 me->data_read(sz);
@@ -141,6 +142,7 @@ private:
             s.async_write_some(boost::asio::buffer(p, max_size),
                                me->m_strand.wrap([=](auto ec, auto cnt) {
                                    if (ec) {
+                                       std::cout << "Error..." << std::endl;
                                        return;
                                    }
                                    me->data_sent(cnt);
