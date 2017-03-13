@@ -6,12 +6,17 @@ CONFIG -= qt
 unix:DEFINES+=PUB_HTML=\\\"$$(HOME)/public_html\\\"
 win32:DEFINES+=PUB_HTML=\\\"c:/www-data\\\"
 
-LIBS += -lboost_system -lpthread
+unix:LIBS += -lboost_system -lpthread
 
 DEFINES += USE_EXPERIMENTAL_FS
 unix: LIBS += -lstdc++fs
 
 INCLUDEPATH += ../../include
+
+win32 {
+    INCLUDEPATH += c:/Boost
+    LIBS += -Lc:/Boost/x86_64
+}
 
 SOURCES += main.cpp \
     ../../src/httpdlib/request.cpp \
