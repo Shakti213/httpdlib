@@ -87,7 +87,7 @@ protected:
      * @return  True if the private check is ok. Otherwise false.
      *
      * This should only be used for checks that a user should not be able to
-     * skip.
+     * skip by clearing filters etc.
      *
      * Normally filters should be good enough, see response_generator_collection
      * for an example of when this makes sense to override.

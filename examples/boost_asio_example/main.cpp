@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 
-httpdlib::filesystem_response_generator fs_response(PUB_HTML);
+static httpdlib::filesystem_response_generator fs_response(PUB_HTML);
 
 template <typename ConnectionHandler>
 class asio_generic_server
@@ -137,16 +137,19 @@ private:
     }
 
     void write_data() {
-        auto writer = [&s = m_socket, me = shared_from_this() ](
+        auto write_end_handler =
+            m_strand.wrap([me = shared_from_this()](auto ec, auto cnt) {
+                if (ec) {
+                    std::cout << "Error..." << std::endl;
+                    return;
+                }
+                me->data_sent(cnt);
+            });
+
+        auto writer = [&s = m_socket, write_end_handler ](
             const char *p, std::size_t max_size) {
             s.async_write_some(boost::asio::buffer(p, max_size),
-                               me->m_strand.wrap([=](auto ec, auto cnt) {
-                                   if (ec) {
-                                       std::cout << "Error..." << std::endl;
-                                       return;
-                                   }
-                                   me->data_sent(cnt);
-                               }));
+                               write_end_handler);
             return std::size_t(0);
         };
 

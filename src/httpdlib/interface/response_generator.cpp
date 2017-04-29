@@ -40,7 +40,9 @@ void response_generator::clear_filters() {
 }
 
 bool response_generator::check_filters(const request &request) {
-    // If any of the filters return false std::any_of will return true,
+    // If any of the filters return false std::any_of will return true
+    // In the event that any filter returns false this will be quicker though
+    // since not all filters have to be checked.
     return !std::any_of(
         std::begin(m_filters), std::end(m_filters),
         [&request](const auto &f) { return f(request) == false; });
