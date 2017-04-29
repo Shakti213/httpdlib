@@ -123,7 +123,7 @@ filesystem_response_generator::get_response(const request &req) {
         else {
             std::ifstream *file_in = new std::ifstream(
                 file, std::ios_base::in | std::ios_base::binary);
-            stream_response *resp = new stream_response(file_in);
+            auto resp = make_stream_response(file_in);
             resp->set_code(codes::ok);
             auto ctype = util::content_type_from_file_type(file_type(file));
             if (resp->size() > 25 * 1024 * 1024) {
@@ -134,7 +134,8 @@ filesystem_response_generator::get_response(const request &req) {
                 ctype += ";charset=utf-8";
             }
             resp->set_header("content-type", ctype);
-            retval.reset(resp);
+
+            retval.reset(resp.release());
         }
     }
 

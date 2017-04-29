@@ -32,4 +32,5 @@ SOURCES += main.cpp \
     ../../src/httpdlib/string_util/string_util.cpp \
     ../../src/httpdlib/util/content_type.cpp \
     ../../src/httpdlib/filesystem_response_generator.cpp \
-    ../../src/httpdlib/stream_response.cpp
+    ../../src/httpdlib/stream_response.cpp \
+    ../../src/httpdlib/buffer/adapter/istream_adapter.cpp

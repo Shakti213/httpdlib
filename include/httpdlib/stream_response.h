@@ -24,39 +24,17 @@
 #ifndef STREAM_RESPONSE_H
 #define STREAM_RESPONSE_H
 
-#include "httpdlib/interface/response.h"
-#include <array>
-#include <istream>
-#include <memory>
+#include "httpdlib/buffer/adapter/istream_adapter.h"
+#include "httpdlib/buffer/double_buffer.h"
+#include "httpdlib/buffer_response.h"
 
 namespace httpdlib
 {
 
-/**
- * @brief Builds a response based on an istream
- *
- * The istream can be a file or any other implementation of std::istream.
- * This uses an internal buffer of 128 kB to read into and use as a
- * storage to send from. This allows for very big files to be served
- * without loading them into RAM first.
- *
- */
-class stream_response : public interface::response
-{
-    struct buffer;
+typedef buffer_response<buffer::double_buffer<buffer::adapter::istream_adapter>>
+    stream_response;
 
-    std::unique_ptr<buffer> m_buffer;
-
-public:
-    stream_response(std::unique_ptr<std::istream> stream);
-    stream_response(std::istream *stream);
-    std::size_t size() const;
-
-protected:
-    void prepare_write() override;
-    size_t write_payload_part(writer_t writer, size_t offset) override;
-    void async_payload_written(std::size_t bytes_written) override;
-};
+std::unique_ptr<stream_response> make_stream_response(std::istream *stream);
 
 } // namespace httpdlib
 

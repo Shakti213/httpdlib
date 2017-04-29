@@ -33,7 +33,8 @@ SOURCES += main.cpp \
     ../../src/httpdlib/interface/data_parser.cpp \
     ../../src/httpdlib/parser/header.cpp \
     ../../src/httpdlib/parser/body_chunked_encoding.cpp \
-    ../../src/httpdlib/parser/body_identity_encoding.cpp
+    ../../src/httpdlib/parser/body_identity_encoding.cpp \
+    ../../src/httpdlib/buffer/adapter/istream_adapter.cpp
 
 HEADERS += \
     webserver.h \
