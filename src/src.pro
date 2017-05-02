@@ -28,7 +28,8 @@ HEADERS += \
     ../include/httpdlib/parser/body_chunked_encoding.h \
     ../include/httpdlib/buffer_response.h \
     ../include/httpdlib/buffer/adapter/istream_adapter.h \
-    ../include/httpdlib/buffer/double_buffer.h
+    ../include/httpdlib/buffer/double_buffer.h \
+    ../include/httpdlib/buffer/buffer_impl/double_buffer.h
 SOURCES +=  \
            httpdlib/filesystem_response_generator.cpp \
            httpdlib/header_collection.cpp \

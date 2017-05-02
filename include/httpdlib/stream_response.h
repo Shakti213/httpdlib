@@ -31,7 +31,8 @@
 namespace httpdlib
 {
 
-typedef buffer_response<buffer::double_buffer<buffer::adapter::istream_adapter>>
+typedef buffer_response<
+    buffer::buffer_impl::double_buffer<buffer::adapter::istream_adapter>>
     stream_response;
 
 std::unique_ptr<stream_response> make_stream_response(std::istream *stream);

@@ -28,9 +28,8 @@ namespace httpdlib
 
 std::unique_ptr<stream_response> make_stream_response(std::istream *stream) {
     std::unique_ptr<stream_response> retval;
-    auto adapter = buffer::adapter::make_istream_adapter(stream);
-    auto buffer = buffer::make_double_buffer(std::move(adapter));
-    retval.reset(new stream_response(std::move(buffer)));
+    retval.reset(new stream_response(
+        buffer::double_buffer(buffer::adapter::adapter(stream))));
     return retval;
 }
 
