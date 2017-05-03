@@ -62,6 +62,8 @@ implementations available in *src/httpdlib/util/platform/win32_content_type.cpp*
 Inside *src/httpdlib/util/platform* a header called *content_type.h* is located
 which declares all the platform specific functions available.
 
+The namespace __*impl*__ is also a special namespace. It is used for implementation details that must be provided publicly but shouldn't be part of the public API. This is useful when providing templates that must be in a header file but the API to use them is provided via functions. Then the functions are located in the upper namespace and the template classes are located in the __*impl*__ namespace. See double_buffer.h and adapter.h for examples.
+
 ### Requests
 Requests are parsed using the httpdlib::request class, and the usage is pretty
 much the same as when writing data to std::cout.
