@@ -21,8 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef ISTREAM_BUFFER_H
-#define ISTREAM_BUFFER_H
+#ifndef DOUBLE_BUFFER_H
+#define DOUBLE_BUFFER_H
 
 #include <array>
 #include <memory>

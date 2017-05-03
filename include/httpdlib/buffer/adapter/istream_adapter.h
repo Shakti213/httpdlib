@@ -34,6 +34,11 @@ namespace buffer
 namespace adapter
 {
 
+/**
+ * @brief adapter   Creates an adapter from a stream
+ * @param stream    The stream pointer will be alive until the buffer is
+ * destroyed.
+ */
 inline auto adapter(std::istream *stream) {
     auto read_callable = [stream](char *buf, std::size_t max_len) {
         stream->read(buf, static_cast<std::streamsize>(max_len));
