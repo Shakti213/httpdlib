@@ -110,13 +110,13 @@ public:
 template <typename T>
 auto double_buffer(T *adapter) -> std::unique_ptr<impl::double_buffer<T>> {
     return std::unique_ptr<double_buffer<T>>(
-        new buffer_impl::double_buffer<T>(adapter));
+        new impl::double_buffer<T>(adapter));
 }
 template <typename T>
 auto double_buffer(std::unique_ptr<T> adapter)
     -> std::unique_ptr<impl::double_buffer<T>> {
-    return std::unique_ptr<buffer::impl::double_buffer<T>>(
-        new buffer::impl::double_buffer<T>(std::move(adapter)));
+    return std::unique_ptr<impl::double_buffer<T>>(
+        new impl::double_buffer<T>(std::move(adapter)));
 }
 }
 }
