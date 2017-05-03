@@ -29,7 +29,7 @@ HEADERS += \
     ../include/httpdlib/buffer_response.h \
     ../include/httpdlib/buffer/adapter/istream_adapter.h \
     ../include/httpdlib/buffer/double_buffer.h \
-    ../include/httpdlib/buffer/buffer_impl/double_buffer.h
+    ../include/httpdlib/buffer/adapter/adapter.h
 SOURCES +=  \
            httpdlib/filesystem_response_generator.cpp \
            httpdlib/header_collection.cpp \
@@ -46,8 +46,7 @@ SOURCES +=  \
     httpdlib/parser/request_line.cpp \
     httpdlib/parser/header.cpp \
     httpdlib/parser/body_identity_encoding.cpp \
-    httpdlib/parser/body_chunked_encoding.cpp \
-    httpdlib/buffer/adapter/istream_adapter.cpp
+    httpdlib/parser/body_chunked_encoding.cpp
 
 use_platform_content_types {
     DEFINES *= USE_PLATFORM_CONTENT_TYPES

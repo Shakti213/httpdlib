@@ -26,11 +26,10 @@
 namespace httpdlib
 {
 
-std::unique_ptr<stream_response> make_stream_response(std::istream *stream) {
-    std::unique_ptr<stream_response> retval;
-    retval.reset(new stream_response(
-        buffer::double_buffer(buffer::adapter::adapter(stream))));
-    return retval;
+auto make_stream_response(std::istream *stream) -> decltype(
+    buffer_response(buffer::double_buffer(buffer::adapter::adapter(stream)))) {
+    return buffer_response(
+        buffer::double_buffer(buffer::adapter::adapter(stream)));
 }
 
 } // namespace httpdlib

@@ -24,8 +24,8 @@
 #ifndef ISTREAM_ADAPTER_H
 #define ISTREAM_ADAPTER_H
 
+#include "adapter.h"
 #include <istream>
-#include <memory>
 
 namespace httpdlib
 {
@@ -34,22 +34,23 @@ namespace buffer
 namespace adapter
 {
 
-class istream_adapter
-{
-    std::unique_ptr<std::istream> m_stream;
+inline auto adapter(std::istream *stream) {
+    auto read_callable = [stream](char *buf, std::size_t max_len) {
+        stream->read(buf, static_cast<std::streamsize>(max_len));
+        auto bytes_read = stream->gcount();
+        return static_cast<std::size_t>(bytes_read < 0 ? 0 : bytes_read);
+    };
+    auto size_callable = [stream]() {
+        auto current_pos = stream->tellg();
+        stream->seekg(0, stream->end);
+        std::size_t retval = static_cast<std::size_t>(stream->tellg());
+        stream->seekg(current_pos, stream->beg);
+        return retval;
+    };
+    auto error_callable = [stream]() { return !stream->good(); };
 
-public:
-    istream_adapter(std::unique_ptr<std::istream> stream);
-    istream_adapter(std::istream *stream);
-
-    std::size_t size();
-
-    std::size_t read(char *data, std::size_t max_size);
-
-    bool error();
-};
-
-std::unique_ptr<istream_adapter> adapter(std::istream *stream);
+    return adapter(stream, size_callable, read_callable, error_callable);
+}
 }
 }
 }

@@ -17,16 +17,41 @@
 */
 
 #include "webserver.h"
+#include "httpdlib/buffer/adapter/adapter.h"
+#include "httpdlib/buffer/double_buffer.h"
+#include "httpdlib/buffer_response.h"
 #include "httpdlib/codes/codes.h"
 #include "httpdlib/filesystem_response_generator.h"
 #include "httpdlib/memory_response.h"
 #include "httpdlib/response_generator_collection.h"
 #include "httpdlib/string_util/string_util.h"
 #include <QDebug>
+#include <QFile>
 #include <QTcpSocket>
 
 static httpdlib::response_generator_collection generators;
 static httpdlib::filesystem_response_generator *response_generator;
+
+// To be able to serve QFile we build an adapter and then build a response.
+// Builds an adapter that can be used with buffers.
+// The general adapter class takes ownership of the pointer via
+// std::unique_ptr<QFile>.
+static auto adapter(QFile *file) {
+    auto read_callable = [file](char *buf, std::size_t max_len) {
+        return file->read(buf, static_cast<qint64>(max_len));
+    };
+
+    return httpdlib::buffer::adapter::adapter(
+        file, std::bind(&QFile::size, file), read_callable,
+        std::bind(&QFile::atEnd, file));
+}
+
+// Shows how easy it is to adapt a response to for instance a QFile
+// using the generic buffer_response with double_buffer and a custom adapter.
+static auto qfile_response(QFile *file) {
+    return httpdlib::buffer_response(
+        httpdlib::buffer::double_buffer(adapter(file)));
+}
 
 class json_generators : public httpdlib::interface::response_generator
 {
@@ -121,8 +146,22 @@ void WebServer::onReadyRead() {
             return static_cast<std::size_t>(retval);
         };
 
-        auto response = generators.get_response(request);
-        response->set_code(httpdlib::codes::ok);
+        std::unique_ptr<httpdlib::interface::response> response;
+        if (request.uri() == "/test.jpg") {
+            QFile *file = new QFile(":/www/test.jpg");
+            if (file->open(QFile::ReadOnly)) {
+                response = qfile_response(file);
+            }
+            else {
+                response = generators.get_response(request);
+            }
+        }
+        else {
+            response = generators.get_response(request);
+        }
+        if (response->code() >= 200 && response->code() < 300) {
+            response->set_code(httpdlib::codes::ok);
+        }
         response->write_next(writer);
         m_responses[socket] = std::move(response);
         request.reset();

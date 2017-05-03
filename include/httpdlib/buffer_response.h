@@ -7,6 +7,8 @@
 namespace httpdlib
 {
 
+namespace impl
+{
 /**
  * @brief Class that uses a generic buffer
  * The buffer must provide the following functions:
@@ -28,8 +30,10 @@ class buffer_response : public interface::response
 public:
     buffer_response(std::unique_ptr<buffer_t> buffer)
         : m_buffer(std::move(buffer)) {
+        set_code(200);
     }
     buffer_response(buffer_t *buffer) : m_buffer(buffer) {
+        set_code(200);
     }
 
     std::size_t size() const {
@@ -65,5 +69,19 @@ protected:
         }
     }
 };
+}
+
+template <typename T>
+auto buffer_response(std::unique_ptr<T> buffer)
+    -> std::unique_ptr<impl::buffer_response<T>> {
+    return std::unique_ptr<impl::buffer_response<T>>(
+        new impl::buffer_response<T>(std::move(buffer)));
+}
+
+template <typename T>
+auto buffer_response(T *buffer) -> std::unique_ptr<impl::buffer_response<T>> {
+    return std::unique_ptr<impl::buffer_response<T>>(
+        new impl::buffer_response<T>(buffer));
+}
 }
 #endif // BUFFER_RESPONSE_H

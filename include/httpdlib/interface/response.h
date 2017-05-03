@@ -60,7 +60,12 @@ public:
     /**
      * @brief Default destructor does nothing but is marked virtual.
      */
-    virtual ~response();
+    virtual ~response() = default;
+    response() = default;
+    response(const response &) = default;
+    response(response &&) = default;
+    response &operator=(const response &) = default;
+    response &operator=(response &&) = default;
     /**
      * @brief code
      * @return
@@ -128,7 +133,8 @@ protected:
      */
     virtual bool payload_done(std::size_t payload_bytes_written) const;
     /**
-     * @brief This is called by async_bytes_written when payload has been written.
+     * @brief This is called by async_bytes_written when payload has been
+     * written.
      * @param bytes_written The number of bytes written.
      *
      * Use this to update internal state in cases when bytes_written is 0.

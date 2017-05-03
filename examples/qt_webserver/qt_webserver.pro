@@ -33,8 +33,7 @@ SOURCES += main.cpp \
     ../../src/httpdlib/interface/data_parser.cpp \
     ../../src/httpdlib/parser/header.cpp \
     ../../src/httpdlib/parser/body_chunked_encoding.cpp \
-    ../../src/httpdlib/parser/body_identity_encoding.cpp \
-    ../../src/httpdlib/buffer/adapter/istream_adapter.cpp
+    ../../src/httpdlib/parser/body_identity_encoding.cpp
 
 HEADERS += \
     webserver.h \
@@ -62,3 +61,6 @@ use_platform_content_types {
 }
 
 DISTFILES +=
+
+RESOURCES += \
+    qres.qrc

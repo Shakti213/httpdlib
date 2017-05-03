@@ -32,10 +32,6 @@ namespace httpdlib
 namespace interface
 {
 
-response::~response() {
-    // Do nothing
-}
-
 int response::code() const {
     return m_code;
 }
@@ -185,9 +181,7 @@ bool response::payload_done(size_t payload_bytes_written) const {
     return payload_bytes_written >= m_expected_payload_size;
 }
 
-void response::async_payload_written(std::size_t)
-{
-
+void response::async_payload_written(std::size_t) {
 }
 
 void response::maybe_set_code204_or_content_length(size_t content_length) {
@@ -241,12 +235,12 @@ size_t response::write_next(response::writer_t writer) {
 
 void response::async_bytes_written(std::size_t bytes_written) {
     m_write_next_offset += bytes_written;
-    if(m_state == state_write_headers &&
-            m_write_next_offset >= m_serialized_status_and_headers.length()) {
+    if (m_state == state_write_headers &&
+        m_write_next_offset >= m_serialized_status_and_headers.length()) {
         m_state = state_write_payload;
         m_write_next_offset = 0;
     }
-    else if(m_state == state_write_payload) {
+    else if (m_state == state_write_payload) {
         async_payload_written(bytes_written);
     }
 }
