@@ -109,7 +109,7 @@ public:
 }
 template <typename T>
 auto double_buffer(T *adapter) -> std::unique_ptr<impl::double_buffer<T>> {
-    return std::unique_ptr<double_buffer<T>>(
+    return std::unique_ptr<impl::double_buffer<T>>(
         new impl::double_buffer<T>(adapter));
 }
 template <typename T>
