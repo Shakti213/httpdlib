@@ -20,6 +20,7 @@
 #include "httpdlib/buffer/adapter/adapter.h"
 #include "httpdlib/buffer/double_buffer.h"
 #include "httpdlib/buffer_response.h"
+#include "httpdlib/callable_response_generator.h"
 #include "httpdlib/codes/codes.h"
 #include "httpdlib/filesystem_response_generator.h"
 #include "httpdlib/memory_response.h"
@@ -36,60 +37,71 @@ static httpdlib::filesystem_response_generator *response_generator;
 // Builds an adapter that can be used with buffers.
 // The general adapter class takes ownership of the pointer via
 // std::unique_ptr<QFile>.
-static auto adapter(QFile *file) {
-    auto read_callable = [file](char *buf, std::size_t max_len) {
-        return file->read(buf, static_cast<qint64>(max_len));
+static auto adapter(std::unique_ptr<QFile> file) {
+    // std::bind can't be used for read because QFile::read has a bunch of
+    // overloads, so to get around this make a small lambda.
+    // The lambda (and binds) should use the raw pointer
+    // but ownership must later be transferred to adapter via std::move
+    QFile *ptr = file.get();
+    auto read_callable = [ptr](char *buf, std::size_t max_len) {
+        return ptr->read(buf, static_cast<qint64>(max_len));
     };
 
+    // Adapter will take ownership of pointer to release it to get the raw
+    // pointer (used by lambda and by by bind etc.) and let adapter take
+    // ownership of the raw pointer
     return httpdlib::buffer::adapter::adapter(
-        file, std::bind(&QFile::size, file), read_callable,
-        std::bind(&QFile::atEnd, file));
+        std::move(file), std::bind(&QFile::size, ptr), read_callable,
+        std::bind(&QFile::atEnd, ptr));
 }
 
 // Shows how easy it is to adapt a response to for instance a QFile
 // using the generic buffer_response with double_buffer and a custom adapter.
-static auto qfile_response(QFile *file) {
+static auto qfile_response(std::unique_ptr<QFile> file) {
     return httpdlib::buffer_response(
-        httpdlib::buffer::double_buffer(adapter(file)));
+        httpdlib::buffer::double_buffer(adapter(std::move(file))));
 }
 
-class json_generators : public httpdlib::interface::response_generator
-{
-
-    // response_generator interface
-public:
-    // Just a simple generator that generates a JSON response
-    // based on some stuff.
-    json_generators() {
-        add_filter([](const auto &r) {
-            return httpdlib::string_util::ends_with(r.uri(), ".json");
-        });
-    }
-
-    std::unique_ptr<httpdlib::interface::response>
-    get_response(const httpdlib::request &request) override {
+// This function is used together with callable_response_generator to generate
+// responses.
+static std::unique_ptr<httpdlib::interface::response>
+resource_response(const httpdlib::request &r) {
+    if (httpdlib::string_util::ends_with(r.uri(), ".json")) {
         auto *retval = new httpdlib::memory_response;
 
         retval->set_code(200);
         retval->set_header("content-type", "application/json;charset=utf-8");
         std::string data = "{\"uri\":\"";
-        data += request.uri() + "\",\"method\": \"" + request.method() + "\"}";
+        data += r.uri() + "\",\"method\": \"" + r.method() + "\"}";
         retval->set_data(data.c_str());
 
         return std::unique_ptr<httpdlib::interface::response>(retval);
     }
-};
+    std::unique_ptr<QFile> file(new QFile(":/www/test.jpg"));
+    if (file->open(QFile::ReadOnly)) {
+        return qfile_response(std::move(file));
+    }
+    return httpdlib::memory_response::default_for_code(500);
+}
 
 WebServer::WebServer(QObject *parent) : QObject(parent) {
     // Filter so only GET requests will go through
     response_generator = new httpdlib::filesystem_response_generator(PUB_HTML);
     response_generator->add_filter([](const auto &r) {
         return r.method() == "GET" &&
-               httpdlib::string_util::ends_with(r.uri(), ".json") == false;
+               httpdlib::string_util::ends_with(r.uri(), ".json") == false &&
+               r.uri() != "/test.jpg";
+    });
+
+    auto qrc_generator =
+        httpdlib::callable_response_generator(resource_response);
+    qrc_generator->add_filter([](const auto &r) {
+        return r.uri() == "/test.jpg" ||
+               httpdlib::string_util::ends_with(r.uri(), ".json");
     });
 
     generators.add_response_generator(response_generator);
-    generators.add_response_generator(new json_generators);
+    generators.add_response_generator(std::move(qrc_generator));
 
     m_tcp_server = new QTcpServer(this);
 
@@ -147,18 +159,8 @@ void WebServer::onReadyRead() {
         };
 
         std::unique_ptr<httpdlib::interface::response> response;
-        if (request.uri() == "/test.jpg") {
-            QFile *file = new QFile(":/www/test.jpg");
-            if (file->open(QFile::ReadOnly)) {
-                response = qfile_response(file);
-            }
-            else {
-                response = generators.get_response(request);
-            }
-        }
-        else {
-            response = generators.get_response(request);
-        }
+        response = generators.get_response(request);
+
         if (response->code() >= 200 && response->code() < 300) {
             response->set_code(httpdlib::codes::ok);
         }
