@@ -24,8 +24,8 @@
 #ifndef DOUBLE_BUFFER_H
 #define DOUBLE_BUFFER_H
 
-#include <array>
 #include <memory>
+#include <vector>
 
 namespace httpdlib
 {
@@ -37,17 +37,21 @@ namespace impl
 /**
  * @brief Provides a double buffer that can be used with buffer_response
  *
+ * Internally a vector is used to store the actual data, and the maximum
+ * capacity can be set when constructing the double_buffer.
+ * Note that the maximum capacity might be more than what is asked, depending on
+ * std::vector<char>::reserve() implementation.
  * BufferAdapterT is a small wrapper around the actual data that provides
  * at minimum the following functions (or implicit convertible to these):
  * std::size_t size() const
- * std::size_t read(char *out_data, std::size_t max_length)
+ * std::size_t read(char *data_buffer, std::size_t max_length_to_read)
  * bool error() const;
  */
-template <typename BufferAdapterT, std::size_t BufSize = 128 * 1024>
+template <typename BufferAdapterT>
 class double_buffer
 {
     typedef BufferAdapterT buffer_adapter_t;
-    typedef std::array<char, BufSize> buffer_type_t;
+    typedef std::vector<char> buffer_type_t;
     std::unique_ptr<buffer_adapter_t> m_adapter;
 
     buffer_type_t m_buffers[2];
@@ -59,11 +63,17 @@ class double_buffer
     std::size_t file_size = 0;
 
 public:
-    double_buffer(std::unique_ptr<buffer_adapter_t> adapter)
+    double_buffer(std::unique_ptr<buffer_adapter_t> adapter,
+                  std::size_t max_buf_size = 128 * 1024)
         : m_adapter(std::move(adapter)), file_size(m_adapter->size()) {
+        m_buffers[0].reserve(max_buf_size);
+        m_buffers[1].reserve(max_buf_size);
     }
-    double_buffer(buffer_adapter_t *adapter)
+    double_buffer(buffer_adapter_t *adapter,
+                  std::size_t max_buf_size = 128 * 1024)
         : m_adapter(adapter), file_size(m_adapter->size()) {
+        m_buffers[0].reserve(max_buf_size);
+        m_buffers[1].reserve(max_buf_size);
     }
 
     void initial_read() {
@@ -72,7 +82,7 @@ public:
 
         current_ptr_offset = 0;
         current_ptr_end =
-            m_adapter->read(current_ptr->data(), current_ptr->size());
+            m_adapter->read(current_ptr->data(), current_ptr->capacity());
         next_end = 0;
         maybe_load_next_chunk();
     }
@@ -102,21 +112,23 @@ public:
 
     void maybe_load_next_chunk() {
         if (!m_adapter->error() && next_end == 0) {
-            next_end = m_adapter->read(next_ptr->data(), next_ptr->size());
+            next_end = m_adapter->read(next_ptr->data(), next_ptr->capacity());
         }
     }
 };
 }
 template <typename T>
-auto double_buffer(T *adapter) -> std::unique_ptr<impl::double_buffer<T>> {
-    return std::unique_ptr<impl::double_buffer<T>>(
-        new impl::double_buffer<T>(adapter));
-}
-template <typename T>
-auto double_buffer(std::unique_ptr<T> adapter)
+auto double_buffer(T *adapter, std::size_t max_buf_size = 128 * 1024)
     -> std::unique_ptr<impl::double_buffer<T>> {
     return std::unique_ptr<impl::double_buffer<T>>(
-        new impl::double_buffer<T>(std::move(adapter)));
+        new impl::double_buffer<T>(adapter), max_buf_size);
+}
+template <typename T>
+auto double_buffer(std::unique_ptr<T> adapter,
+                   std::size_t max_buf_size = 128 * 1024)
+    -> std::unique_ptr<impl::double_buffer<T>> {
+    return std::unique_ptr<impl::double_buffer<T>>(
+        new impl::double_buffer<T>(std::move(adapter), max_buf_size));
 }
 }
 }
