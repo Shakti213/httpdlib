@@ -70,7 +70,7 @@ public:
 
     void clear_data();
 
-    static memory_response default_for_code(int code);
+    static std::unique_ptr<memory_response> default_for_code(int code);
 
 protected:
     void prepare_write() override;

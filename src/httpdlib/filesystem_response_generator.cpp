@@ -117,8 +117,7 @@ filesystem_response_generator::get_response(const request &req) {
     else {
         bool exists = file_exists(file);
         if (!exists) {
-            retval.reset(new memory_response(
-                memory_response::default_for_code(codes::not_found)));
+            retval = memory_response::default_for_code(codes::not_found);
         }
         else {
             std::ifstream *file_in = new std::ifstream(

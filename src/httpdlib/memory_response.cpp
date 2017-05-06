@@ -50,18 +50,19 @@ void memory_response::clear_data() {
     m_data.clear();
 }
 
-memory_response memory_response::default_for_code(int code) {
+std::unique_ptr<memory_response> memory_response::default_for_code(int code) {
     static std::string default_page_head = "<html><head><title>";
     static std::string default_page_body = "</title></head><body><h1>";
     static std::string default_page_footer = "</h1></body></html>";
-    memory_response retval(code);
+    std::unique_ptr<memory_response> retval =
+        std::make_unique<memory_response>(code);
     if (code != 204 && code != 304) {
         auto code_string = std::to_string(code);
-        retval.set_data(default_page_head + code_string + default_page_body +
-                        code_string + " - " + response::code_to_reason(code) +
-                        default_page_footer);
+        retval->set_data(default_page_head + code_string + default_page_body +
+                         code_string + " - " + response::code_to_reason(code) +
+                         default_page_footer);
 
-        retval.set_header("content-type", "text/html;charset=utf-8");
+        retval->set_header("content-type", "text/html;charset=utf-8");
     }
 
     return retval;

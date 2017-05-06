@@ -84,9 +84,8 @@ public:
             m_conn_timeout_timer.cancel();
         }
         else if (m_request.error()) {
-            m_response.reset(new httpdlib::memory_response(
-                httpdlib::memory_response::default_for_code(
-                    m_request.parse_result())));
+            m_response = httpdlib::memory_response::default_for_code(
+                m_request.parse_result());
             write_data();
         }
         else {
