@@ -169,6 +169,10 @@ void request::set_max_request_data_size(const size_t max) {
     m_max_request_data_size = max;
 }
 
+request::http_version_t request::version() const {
+    return m_version;
+}
+
 void request::set_parse_result(const ParseResult &parse_result) {
     m_parse_result = parse_result;
 }
@@ -353,6 +357,7 @@ void request::reset() {
     m_query_string_values.clear();
     m_state = waiting_request_line;
     m_uri = "";
+    m_version = http_version_unsupported;
     m_request_data_to_read = 0;
     m_request_data_read = 0;
     m_request_data.clear();
@@ -422,6 +427,14 @@ void request::add_data(char data) {
             m_query_string_values =
                 parse_query_string(m_request_line_parser.query_string());
             m_fragment = m_request_line_parser.fragment();
+            m_version = http_version_unsupported;
+            auto version_string = m_request_line_parser.version();
+            if (version_string == "HTTP/1.1") {
+                m_version = http_version_1_1;
+            }
+            else if (version_string == "HTTP/1.0") {
+                m_version = http_version_1_0;
+            }
 
             if (!std::any_of(std::begin(m_allowed_methods),
                              std::end(m_allowed_methods),
@@ -429,7 +442,7 @@ void request::add_data(char data) {
                 m_state = reset_required;
                 m_parse_result = MethodNotAllowed;
             }
-            else if (m_request_line_parser.version() != "HTTP/1.1") {
+            else if (m_version == http_version_unsupported) {
                 m_state = reset_required;
                 m_parse_result = UnsupportedVersion;
             }
@@ -465,8 +478,9 @@ void request::add_data(char data) {
         if (m_body_parser->done()) {
             m_state = reset_required;
             m_parse_result = Finished;
-            log(3, "Finished receiving data. Received " +
-                       std::to_string(m_body_parser->size()) + " bytes");
+            log(3,
+                "Finished receiving data. Received " +
+                    std::to_string(m_body_parser->size()) + " bytes");
         }
         else {
             if (m_body_parser->size() > m_max_request_data_size) {

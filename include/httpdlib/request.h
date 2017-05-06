@@ -56,6 +56,12 @@ public:
         UnsupportedVersion = codes::unsupported_version,
     };
 
+    enum http_version_t {
+        http_version_1_0,
+        http_version_1_1,
+        http_version_unsupported = 255
+    };
+
     typedef std::map<std::string, std::string> query_values_t;
 
 private:
@@ -78,6 +84,7 @@ private:
     std::string m_uri;
     std::string m_fragment;
     query_values_t m_query_string_values;
+    http_version_t m_version;
     header_collection m_headers;
 
     std::size_t m_request_data_to_read;
@@ -333,6 +340,11 @@ public:
      */
     std::vector<char> &request_data();
     const std::vector<char> &request_data() const;
+    /**
+     * @brief Gets the HTTP version of the request.
+     * @return A version identifier.
+     */
+    http_version_t version() const;
 };
 }
 
