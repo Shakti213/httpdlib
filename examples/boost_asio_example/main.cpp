@@ -2,6 +2,7 @@
 #include "httpdlib/interface/response.h"
 #include "httpdlib/memory_response.h"
 #include "httpdlib/request.h"
+#include "httpdlib/string_util/string_util.h"
 #include <boost/asio.hpp>
 #include <iostream>
 #include <memory>
@@ -39,7 +40,7 @@ public:
     }
 
     void handle_new_connection() {
-        std::cout << "New connection..." << std::endl;
+        // std::cout << "New connection..." << std::endl;
         auto next_connection =
             std::make_shared<ConnectionHandler>(m_io_service);
         m_acceptor.async_accept(next_connection->socket(), [=](auto ec) {
@@ -80,6 +81,19 @@ public:
                 std::cout << "\t" << h.first << ": " << h.second << std::endl;
             }
             m_response = fs_response.get_response(m_request);
+            keep_alive = true;
+            auto connection_value = httpdlib::string_util::to_lower(
+                m_request.header_value("connection"));
+            if (m_request.version() == m_request.http_version_1_0) {
+                keep_alive = false;
+                if (connection_value == "keep-alive") {
+                    m_response->set_header("connection", "keep-alive");
+                    keep_alive = true;
+                }
+            }
+            else {
+                keep_alive = connection_value != "close";
+            }
             write_data();
             m_conn_timeout_timer.cancel();
         }
@@ -98,8 +112,14 @@ public:
         m_response->async_bytes_written(bytes_sent);
         std::cout << "Data written: " << bytes_sent << std::endl;
         if (m_response->done()) {
-            m_request.reset();
-            read_data();
+            if (keep_alive) {
+                m_request.reset();
+                read_data();
+            }
+            else {
+                m_socket.close();
+                m_conn_timeout_timer.cancel();
+            }
         }
         else {
             write_data();
@@ -154,7 +174,7 @@ private:
 
         m_response->write_next(writer);
     }
-
+    bool keep_alive;
     std::array<char, 2048> m_recv_data;
     boost::asio::io_service::strand m_strand;
     boost::asio::ip::tcp::socket m_socket;

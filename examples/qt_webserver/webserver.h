@@ -23,6 +23,7 @@
 #include "httpdlib/request.h"
 #include <QObject>
 #include <QTcpServer>
+#include <QTcpSocket>
 #include <QTimer>
 #include <map>
 #include <memory>
@@ -51,6 +52,7 @@ public slots:
     void onDisconnected();
     void onSecondTimeout();
     void onCloseSocket(QTcpSocket *socket);
+    void onSocketError(QAbstractSocket::SocketError);
 };
 
 #endif // WEBSERVER_H

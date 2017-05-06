@@ -132,6 +132,8 @@ void WebServer::onNewConnection() {
 
     connect(socket, &QTcpSocket::disconnected, this,
             &WebServer::onDisconnected);
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(onSocketError(QAbstractSocket::SocketError)));
     connect(socket, &QTcpSocket::readyRead, this, &WebServer::onReadyRead);
     connect(socket, &QTcpSocket::bytesWritten, this,
             &WebServer::onBytesWritten);
@@ -158,12 +160,25 @@ void WebServer::onReadyRead() {
             return static_cast<std::size_t>(retval);
         };
 
+        auto connection_value =
+            httpdlib::string_util::to_lower(request.header_value("connection"));
         std::unique_ptr<httpdlib::interface::response> response;
         response = generators.get_response(request);
 
         if (response->code() >= 200 && response->code() < 300) {
             response->set_code(httpdlib::codes::ok);
         }
+        bool connection_keep_alive = true;
+        if (request.version() == request.http_version_1_0) {
+            connection_keep_alive = connection_value == "keep-alive";
+            if (connection_keep_alive) {
+                response->set_header("connection", "keep-alive");
+            }
+        }
+        else {
+            connection_keep_alive = connection_value != "close";
+        }
+        socket->setProperty("keep-alive", connection_keep_alive);
         response->write_next(writer);
         m_responses[socket] = std::move(response);
         request.reset();
@@ -191,8 +206,7 @@ void WebServer::onBytesWritten(qint64) {
         response->write_next(writer);
     }
     else {
-        auto &request = m_request_data[socket];
-        if (request.header_value("connection") == "close") {
+        if (socket->property("keep-alive").toBool() == false) {
             socket->close();
         }
     }
@@ -224,4 +238,8 @@ void WebServer::onSecondTimeout() {
 
 void WebServer::onCloseSocket(QTcpSocket *socket) {
     socket->close();
+}
+
+void WebServer::onSocketError(QAbstractSocket::SocketError error) {
+    qDebug() << "Error: " << error;
 }
