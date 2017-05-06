@@ -29,7 +29,8 @@ HEADERS += \
     ../include/httpdlib/buffer_response.h \
     ../include/httpdlib/buffer/adapter/istream_adapter.h \
     ../include/httpdlib/buffer/double_buffer.h \
-    ../include/httpdlib/buffer/adapter/adapter.h
+    ../include/httpdlib/buffer/adapter/adapter.h \
+    ../include/httpdlib/callable_response_generator.h
 SOURCES +=  \
            httpdlib/filesystem_response_generator.cpp \
            httpdlib/header_collection.cpp \
