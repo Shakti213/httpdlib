@@ -73,6 +73,15 @@ auto adapter(AdaptedObjectT *obj, SizeCallableT size_callable,
                           ErrorCallableT>(obj, size_callable, read_callable,
                                           error_callable));
 }
+
+template <typename AdaptedObjectT, typename SizeCallableT,
+          typename ReadCallableT, typename ErrorCallableT>
+auto adapter(std::unique_ptr<AdaptedObjectT> obj, SizeCallableT size_callable,
+             ReadCallableT read_callable, ErrorCallableT error_callable) {
+    auto *ptr = obj.release();
+    // Adapter with raw pointer will take ownership...
+    return adapter(ptr, size_callable, read_callable, error_callable);
+}
 }
 }
 }
